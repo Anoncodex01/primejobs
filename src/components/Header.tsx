@@ -20,31 +20,31 @@ export const Header: FC = () => {
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               <a 
-                href="/about" 
+                href="/find-job" 
                 className="relative text-gray-700 hover:text-gray-900 transition-colors font-medium text-sm group"
               >
-                ABOUT
+                Browse Jobs
                 <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-[#002bff] via-[#0077ff] to-[#00ffff] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
               </a>
               <a 
-                href="/resources" 
+                href="/career-hub" 
                 className="relative text-gray-700 hover:text-gray-900 transition-colors font-medium text-sm group"
               >
-                RESOURCES
+                Career Hub
+                <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-[#002bff] via-[#0077ff] to-[#00ffff] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
+              </a>
+              <a 
+                href="/post-job" 
+                className="relative text-gray-700 hover:text-gray-900 transition-colors font-medium text-sm group"
+              >
+                Post a Job (For Employers)
                 <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-[#002bff] via-[#0077ff] to-[#00ffff] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
               </a>
               <a 
                 href="/contact" 
                 className="relative text-gray-700 hover:text-gray-900 transition-colors font-medium text-sm group"
               >
-                CONTACT US
-                <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-[#002bff] via-[#0077ff] to-[#00ffff] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
-              </a>
-              <a 
-                href="/job-seeker" 
-                className="relative text-gray-700 hover:text-gray-900 transition-colors font-medium text-sm group"
-              >
-                JOB SEEKER
+                Contact Us
                 <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-[#002bff] via-[#0077ff] to-[#00ffff] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left"></span>
               </a>
             </nav>

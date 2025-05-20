@@ -1,11 +1,10 @@
 import { Facebook, Twitter, Linkedin, Instagram, Send } from 'lucide-react';
 
 const navigation = [
-  { name: 'BLOG', href: '#' },
-  { name: 'LABS', href: '#' },
-  { name: 'ABOUT US', href: '#' },
-  { name: 'TERMS', href: '#' },
-  { name: 'CONTACT', href: '#' },
+  { name: 'Posted Today', href: '/find-job?filter=today' },
+  { name: 'Posted Yesterday', href: '/find-job?filter=yesterday' },
+  { name: 'Posted in the Last Week (Last 7 days)', href: '/find-job?filter=week' },
+  { name: 'Posted in the Last Month (Last 30 days)', href: '/find-job?filter=month' },
 ];
 
 const socialLinks = [

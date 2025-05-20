@@ -59,7 +59,7 @@ export const HowWeWorks = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-4xl font-bold text-gray-900 tracking-tight mb-6">
-            Connecting talent to opportunities, authentically and safely – providing employers and job seekers a trusted space to connect
+            Connecting talent to opportunities, authentically and safely providing employers and job seekers a trusted space to connect
 
 </h2>
             <div className="w-32 h-1.5 bg-gradient-to-r from-[#002bff] to-[#00ffff] mx-auto rounded-full" />
