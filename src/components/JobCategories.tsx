@@ -1,103 +1,119 @@
 import { FC } from 'react';
-import { Code, Briefcase, PenTool, LineChart, ShoppingBag, Megaphone } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { 
+  Monitor,
+  Briefcase,
+  Lightbulb,
+  Users,
+  Settings,
+  TrendingUp,
+  Mail,
+  Network
+} from 'lucide-react';
 
 interface CategoryCard {
+  id: number;
   title: string;
-  count: number;
+  jobCount: number;
   icon: React.ReactNode;
-  gradient: string;
+  color: string;
+  bgColor: string;
 }
 
 export const JobCategories: FC = () => {
   const categories: CategoryCard[] = [
     {
-      title: "Development",
-      count: 420,
-      icon: <Code className="w-6 h-6" />,
-      gradient: "from-blue-500 to-cyan-400"
+      id: 1,
+      title: "IT/Computer",
+      jobCount: 48,
+      icon: <Mail className="w-5 h-5" />,
+      color: "text-white",
+      bgColor: "bg-[#114373]"
     },
     {
-      title: "Business",
-      count: 230,
-      icon: <Briefcase className="w-6 h-6" />,
-      gradient: "from-indigo-500 to-blue-400"
+      id: 2,
+      title: "Financial Associate",
+      jobCount: 36,
+      icon: <Briefcase className="w-5 h-5" />,
+      color: "text-white",
+      bgColor: "bg-[#4ebf9e]"
     },
     {
-      title: "Design",
-      count: 180,
-      icon: <PenTool className="w-6 h-6" />,
-      gradient: "from-cyan-500 to-blue-400"
+      id: 3,
+      title: "Advertising / Media",
+      jobCount: 52,
+      icon: <Lightbulb className="w-5 h-5" />,
+      color: "text-white",
+      bgColor: "bg-[#114373]"
     },
     {
-      title: "Marketing",
-      count: 150,
-      icon: <LineChart className="w-6 h-6" />,
-      gradient: "from-blue-600 to-cyan-500"
+      id: 4,
+      title: "Office Executive",
+      jobCount: 16,
+      icon: <Network className="w-5 h-5" />,
+      color: "text-white",
+      bgColor: "bg-[#4ebf9e]"
     },
     {
-      title: "Sales",
-      count: 250,
-      icon: <ShoppingBag className="w-6 h-6" />,
-      gradient: "from-indigo-600 to-blue-500"
+      id: 5,
+      title: "Engineer/ Architect",
+      jobCount: 28,
+      icon: <Settings className="w-5 h-5" />,
+      color: "text-white",
+      bgColor: "bg-[#114373]"
     },
     {
-      title: "Advertising",
-      count: 125,
-      icon: <Megaphone className="w-6 h-6" />,
-      gradient: "from-cyan-600 to-blue-500"
+      id: 6,
+      title: "Garments",
+      jobCount: 85,
+      icon: <TrendingUp className="w-5 h-5" />,
+      color: "text-white",
+      bgColor: "bg-[#4ebf9e]"
     }
   ];
 
   return (
-    <div className="relative w-full bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Background Decorations */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-[#002bff]/10 to-[#00ffff]/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-[#002bff]/10 to-[#00ffff]/10 rounded-full blur-3xl" />
-
-      <section className="relative py-24 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="relative w-full bg-white">
+      <section className="relative py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Popular Job Categories
+              Let's help you choose the category
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-[#002bff] to-[#00ffff] mx-auto rounded-full" />
           </div>
 
           {/* Categories Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {categories.map((category, index) => (
-              <div 
-                key={index}
-                className="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categories.map((category) => (
+              <Link
+                key={category.id}
+                to={`/job-search?category=${encodeURIComponent(category.title)}`}
+                className="group bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer block"
               >
-                {/* Card Content */}
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r ${category.gradient} text-white mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                      {category.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {category.title}
-                    </h3>
-                    <p className="text-gray-500">
-                      {category.count} jobs available
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-gradient-to-r from-[#002bff] to-[#00ffff] group-hover:rotate-12 transition-all duration-300">
-                    <span className="text-gray-400 text-sm group-hover:text-white transition-colors">
-                      →
-                    </span>
+                {/* Category Icon */}
+                <div className={`flex items-center justify-center w-10 h-10 ${category.bgColor} rounded-lg mb-3 group-hover:scale-105 transition-transform duration-300`}>
+                  <div className="text-white">
+                    {category.icon}
                   </div>
                 </div>
 
-                {/* Hover Border Effect */}
-                <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#002bff]/20 transition-colors duration-300" />
-              </div>
+                {/* Category Title */}
+                <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                  {category.title}
+                </h3>
+
+                {/* Job Count */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-normal text-gray-500">
+                    {category.jobCount} Jobs
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
       </section>
     </div>
   );
-};
+}; 

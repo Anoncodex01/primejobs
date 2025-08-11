@@ -9,15 +9,15 @@ const navigation = [
 
 const socialLinks = [
   { name: 'Facebook', icon: Facebook, href: '#' },
-  { name: 'Twitter', icon: Twitter, href: 'https://x.com/primejobstz' },
-  { name: 'LinkedIn', icon: Linkedin, href: 'https://www.linkedin.com/company/primejobtz/' },
-  { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/primejobstz' },
+  { name: 'Twitter', icon: Twitter, href: '#' },
+  { name: 'LinkedIn', icon: Linkedin, href: '#' },
+  { name: 'Instagram', icon: Instagram, href: '#' },
   { name: 'Telegram', icon: Send, href: '#' },
 ];
 
 export const Footer = () => {
   return (
-    <footer className="bg-blue-900 text-white relative overflow-hidden">
+    <footer className="bg-[#114373] text-white relative overflow-hidden">
       {/* Subtle dot pattern background */}
       <div className="absolute inset-0 opacity-10 pointer-events-none" aria-hidden="true">
         <svg width="100%" height="100%">
@@ -30,13 +30,13 @@ export const Footer = () => {
         </svg>
       </div>
       <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* Navigation Links */}
+        {/* Top Section - Job Posting Filters */}
         <div className="flex flex-wrap justify-center gap-6 mb-8">
           {navigation.map((item) => (
             <a
               key={item.name}
               href={item.href}
-              className="text-blue-100 hover:text-white transition-colors"
+              className="text-white hover:text-[#4ebf9e] transition-colors font-medium"
             >
               {item.name}
             </a>
@@ -44,24 +44,35 @@ export const Footer = () => {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-blue-800 my-8" />
+        <div className="border-t border-white/20 my-8" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          {/* Service Provider Info */}
+        {/* Bottom Section - Service Information and Copyright */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* Left Side - Service Provider Information */}
           <div className="space-y-4">
-            <p className="text-blue-200 text-sm">Service provided by</p>
-            <div className="flex items-center gap-4">
-              <img src="/primejobs.png" alt="Prime Expertise" className="h-10" />
-              <p className="text-sm text-blue-100">
-                PrimeJobs is currently hosted by Prime Expertise. As we grow and evolve, 
-                we look forward to establishing ourselves as an independent platform 
-                dedicated to connecting talent with opportunities.
-              </p>
+            <p className="text-white/80 text-sm font-medium">Service provided by</p>
+            <div className="flex items-start gap-4">
+              {/* Axia HR Advisory Logo */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white rounded flex items-center justify-center">
+                  <span className="text-[#114373] font-bold text-lg">A</span>
+                </div>
+                <div>
+                  <div className="text-white font-bold text-lg">Axia HR Advisory</div>
+                  <div className="text-white/70 text-sm">Recruitment | HR Solutions | Advisory</div>
+                </div>
+              </div>
             </div>
+            <p className="text-white/80 text-sm leading-relaxed max-w-md">
+              Axia HR Advisory provides end-to-end recruitment management solutions, 
+              streamlining candidate applications, interview processes, placement tracking, 
+              and invoice management for businesses.
+            </p>
           </div>
 
-          {/* Social Links */}
-          <div className="flex flex-col items-center md:items-end gap-4">
+          {/* Right Side - Social Media and Copyright */}
+          <div className="flex flex-col items-center lg:items-end gap-6">
+            {/* Social Media Icons */}
             <div className="flex gap-4">
               {socialLinks.map((item) => {
                 const Icon = item.icon;
@@ -69,19 +80,27 @@ export const Footer = () => {
                   <a
                     key={item.name}
                     href={item.href}
-                    className="w-10 h-10 rounded-full bg-blue-800 flex items-center justify-center hover:bg-blue-700 transition-colors"
+                    className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-5 h-5 text-white" />
                   </a>
                 );
               })}
             </div>
-            <div className="flex items-center gap-2">
-              <img src="/primeexpert.png" alt="ReliefWeb" className="h-10" />
-              <p className="text-sm text-blue-200">© 2025 all rights reserved.</p>
+            
+            {/* Axia HR Advisory Logo and Copyright */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white rounded flex items-center justify-center">
+                <span className="text-[#114373] font-bold text-lg">A</span>
+              </div>
+              <div>
+                <div className="text-white font-bold text-lg">Axia HR Advisory</div>
+                <div className="text-white/70 text-sm">HR Solutions | Advisory | Management</div>
+              </div>
             </div>
+            <p className="text-white/70 text-sm">© 2025 all rights reserved.</p>
           </div>
         </div>
       </div>

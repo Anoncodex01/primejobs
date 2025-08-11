@@ -1,4 +1,5 @@
 import { Job } from '../types/jobs';
+import { Link } from 'react-router-dom';
 import { FiClock, FiDollarSign } from 'react-icons/fi';
 import { IoLocationOutline } from 'react-icons/io5';
 
@@ -50,9 +51,11 @@ export const JobCard = ({ job }: JobCardProps) => {
             </div>
           </div>
         </div>
-        <button className="px-5 py-2 text-blue-600 hover:text-white bg-white hover:bg-blue-600 rounded-full border border-blue-100 hover:border-transparent transition-all duration-300 text-sm">
-          View now
-        </button>
+        <Link to={`/job/${job.id}`}>
+          <button className="px-5 py-2 text-blue-600 hover:text-white bg-white hover:bg-blue-600 rounded-full border border-blue-100 hover:border-transparent transition-all duration-300 text-sm">
+            View now
+          </button>
+        </Link>
       </div>
     </div>
   );
