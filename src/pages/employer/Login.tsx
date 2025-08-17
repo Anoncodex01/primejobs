@@ -114,7 +114,7 @@ const EmployerLogin: FC = () => {
             <p className="text-center text-gray-600 text-sm">
               Don't have an employer account?{' '}
               <Link to="/employer/register" className="text-[#114373] hover:underline font-medium">
-                Contact Axia HR Advisory
+                Create an account
               </Link>
             </p>
           </div>

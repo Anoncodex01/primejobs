@@ -266,13 +266,21 @@ export const Header: FC = () => {
               </button>
               {portalsDropdown && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                  <Link 
+                                    <Link
                     to="/employer/login"
                     className="block px-4 py-3 text-gray-700 hover:bg-[#114373]/5 hover:text-[#114373] transition-colors"
                     onClick={() => setPortalsDropdown(false)}
                   >
                     <div className="font-medium">Employer Portal</div>
                     <div className="text-sm text-gray-500">Post jobs & manage hiring</div>
+                  </Link>
+                  <Link
+                    to="/employer/register"
+                    className="block px-4 py-3 text-gray-700 hover:bg-[#114373]/5 hover:text-[#114373] transition-colors"
+                    onClick={() => setPortalsDropdown(false)}
+                  >
+                    <div className="font-medium">Employer Registration</div>
+                    <div className="text-sm text-gray-500">Create new employer account</div>
                   </Link>
                   <Link 
                     to="/candidate/login"
@@ -504,6 +512,13 @@ export const Header: FC = () => {
                         onClick={closeMobileMenu}
                       >
                         Employer Portal
+                      </Link>
+                      <Link
+                        to="/employer/register"
+                        className="block py-2 text-gray-600 hover:text-[#114373] transition-colors"
+                        onClick={closeMobileMenu}
+                      >
+                        Employer Registration
                       </Link>
                       <Link
                         to="/candidate/login"

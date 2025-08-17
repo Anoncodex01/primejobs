@@ -30,6 +30,7 @@ import CareerHub from './pages/CareerHub';
 // Employer pages
 import EmployerLayout from './components/employer/EmployerLayout';
 import EmployerLogin from './pages/employer/Login';
+import EmployerRegister from './pages/employer/Register';
 import EmployerDashboard from './pages/employer/Dashboard';
 import CreateJob from './pages/employer/CreateJob';
 import CompanyProfile from './pages/employer/CompanyProfile';
@@ -274,6 +275,7 @@ function App() {
 
           {/* Employer Routes */}
           <Route path="/employer/login" element={<EmployerLogin />} />
+          <Route path="/employer/register" element={<EmployerRegister />} />
           <Route path="/employer/dashboard" element={<EmployerLayout><EmployerDashboard /></EmployerLayout>} />
           <Route path="/employer/job/create" element={<EmployerLayout><CreateJob /></EmployerLayout>} />
           <Route path="/employer/company-profile" element={<EmployerLayout><CompanyProfile /></EmployerLayout>} />

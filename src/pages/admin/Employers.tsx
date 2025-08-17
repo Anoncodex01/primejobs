@@ -38,7 +38,7 @@ interface Employer {
   name: string;
   email: string;
   phone: string;
-  status: 'active' | 'inactive' | 'pending' | 'verified';
+  status: 'active' | 'inactive' | 'pending' | 'verified' | 'profile_pending';
   industry: string;
   location: string;
   website: string;
@@ -49,6 +49,7 @@ interface Employer {
   joinedDate: string;
   lastActivity: string;
   notes: string;
+  profileStatus?: 'incomplete' | 'pending' | 'approved';
 }
 
 const Employers: FC = () => {
@@ -115,17 +116,18 @@ const Employers: FC = () => {
       name: 'E-commerce Platform',
       email: 'talent@ecommerce.com',
       phone: '+1 (555) 456-7890',
-      status: 'pending',
+      status: 'profile_pending',
       industry: 'E-commerce',
       location: 'Seattle, WA',
       website: 'www.ecommerce.com',
       contactPerson: 'David Kim',
-      totalJobs: 5,
-      activeJobs: 2,
-      totalPlacements: 3,
+      totalJobs: 0,
+      activeJobs: 0,
+      totalPlacements: 0,
       joinedDate: '2024-01-05',
       lastActivity: '2024-01-15',
-      notes: 'New client, needs verification'
+      notes: 'Profile submitted, awaiting approval',
+      profileStatus: 'pending'
     },
     {
       id: '5',
@@ -143,6 +145,24 @@ const Employers: FC = () => {
       joinedDate: '2022-11-15',
       lastActivity: '2023-12-10',
       notes: 'On hold due to budget cuts'
+    },
+    {
+      id: '6',
+      name: 'New Startup',
+      email: 'hr@newstartup.com',
+      phone: '+1 (555) 678-9012',
+      status: 'profile_pending',
+      industry: 'Technology',
+      location: 'Boston, MA',
+      website: 'www.newstartup.com',
+      contactPerson: 'Alex Thompson',
+      totalJobs: 0,
+      activeJobs: 0,
+      totalPlacements: 0,
+      joinedDate: '2024-01-25',
+      lastActivity: '2024-01-25',
+      notes: 'Profile incomplete, needs completion',
+      profileStatus: 'incomplete'
     }
   ];
 
@@ -156,6 +176,8 @@ const Employers: FC = () => {
         return 'bg-yellow-50 text-yellow-700 border-yellow-200';
       case 'verified':
         return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'profile_pending':
+        return 'bg-orange-50 text-orange-700 border-orange-200';
       default:
         return 'bg-gray-50 text-gray-700 border-gray-200';
     }
@@ -171,6 +193,8 @@ const Employers: FC = () => {
         return <Clock className="w-4 h-4" />;
       case 'verified':
         return <Star className="w-4 h-4" />;
+      case 'profile_pending':
+        return <AlertCircle className="w-4 h-4" />;
       default:
         return <AlertCircle className="w-4 h-4" />;
     }
@@ -192,6 +216,20 @@ const Employers: FC = () => {
     const matchesIndustry = industryFilter === 'all' || employer.industry === industryFilter;
     return matchesSearch && matchesStatus && matchesIndustry;
   });
+
+  const handleApproveProfile = (employerId: string) => {
+    // In a real app, this would make an API call
+    console.log(`Approving profile for employer ${employerId}`);
+    // Update localStorage to simulate approval
+    localStorage.setItem('employerProfileComplete', 'approved');
+    // You would typically update the employer status in your database here
+  };
+
+  const handleRejectProfile = (employerId: string) => {
+    // In a real app, this would make an API call
+    console.log(`Rejecting profile for employer ${employerId}`);
+    // You would typically update the employer status in your database here
+  };
 
   const sortedEmployers = [...filteredEmployers].sort((a, b) => {
     if (sortBy === 'date') {
@@ -279,6 +317,7 @@ const Employers: FC = () => {
                 <option value="inactive">Inactive</option>
                 <option value="pending">Pending</option>
                 <option value="verified">Verified</option>
+                <option value="profile_pending">Profile Pending</option>
               </select>
             </div>
             <div>
@@ -417,10 +456,23 @@ const Employers: FC = () => {
                       <span className={`px-3 py-1.5 rounded-lg text-xs font-medium border ${getStatusColor(employer.status)}`}>
                         <div className="flex items-center gap-1.5">
                           {getStatusIcon(employer.status)}
-                          {employer.status.charAt(0).toUpperCase() + employer.status.slice(1)}
+                          {employer.status === 'profile_pending' ? 'Profile Pending' : employer.status.charAt(0).toUpperCase() + employer.status.slice(1)}
                         </div>
                       </span>
                     </div>
+                    {employer.profileStatus && (
+                      <div className="mt-1">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          employer.profileStatus === 'approved' 
+                            ? 'bg-green-100 text-green-800' 
+                            : employer.profileStatus === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          Profile: {employer.profileStatus.charAt(0).toUpperCase() + employer.profileStatus.slice(1)}
+                        </span>
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {employer.industry}
@@ -452,6 +504,27 @@ const Employers: FC = () => {
                       <button className="text-gray-600 hover:text-gray-900">
                         <Globe className="w-4 h-4" />
                       </button>
+                      
+                      {/* Profile Approval Buttons */}
+                      {employer.status === 'profile_pending' && (
+                        <>
+                          <button 
+                            onClick={() => handleApproveProfile(employer.id)}
+                            className="text-green-600 hover:text-green-800"
+                            title="Approve Profile"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleRejectProfile(employer.id)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Reject Profile"
+                          >
+                            <XCircle className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                      
                       <button className="text-gray-600 hover:text-gray-900">
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
