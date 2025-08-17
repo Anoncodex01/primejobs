@@ -1,8 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Header, Hero, JobCategories, ExploreJobs, HowWeWorks, GetStartedCTA, Footer, TrustFeatures } from './components';
+import { AboutUs } from './components/AboutUs';
+import { Solutions as SolutionsSection } from './components/Solutions';
+import { WhyChooseUs } from './components/WhyChooseUs';
+import { Partners } from './components/Partners';
+import { News } from './components/News';
+import { BottomCTA } from './components/BottomCTA';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import VisionMission from './pages/VisionMission';
+import Solutions from './pages/Solutions';
 import TalentAcquisition from './pages/services/TalentAcquisition';
 import PerformanceManagement from './pages/services/PerformanceManagement';
 import TrainingDevelopment from './pages/services/TrainingDevelopment';
@@ -98,9 +106,15 @@ function App() {
               <Header />
               <main className="flex-1">
                 <Hero />
-                <JobCategories />
+                <AboutUs />
+                <SolutionsSection />
+                <WhyChooseUs />
+                <Partners />
+                <News />
+                <BottomCTA />
+                {/* <JobCategories />
                 <ExploreJobs />
-                <TrustFeatures /> 
+                <TrustFeatures /> */}
               </main>
               <Footer />
             </div>
@@ -119,6 +133,22 @@ function App() {
             <>
               <Header />
               <Contact />
+              <Footer />
+            </>
+          } />
+          
+          <Route path="/vision-mission" element={
+            <>
+              <Header />
+              <VisionMission />
+              <Footer />
+            </>
+          } />
+          
+          <Route path="/solutions" element={
+            <>
+              <Header />
+              <Solutions />
               <Footer />
             </>
           } />
