@@ -72,18 +72,11 @@ const EmployerDashboard: FC = () => {
 
   const [accountStatus, setAccountStatus] = useState<'pending' | 'approved' | 'suspended'>('approved');
   const [agreementSigned, setAgreementSigned] = useState(true);
-  const [profileStatus, setProfileStatus] = useState<'pending' | 'approved' | 'incomplete'>('incomplete');
+  const [profileStatus, setProfileStatus] = useState<'pending' | 'approved' | 'incomplete'>('approved');
 
-  // Check profile status on component mount
+  // Set profile status to approved for full access
   useEffect(() => {
-    const profileComplete = localStorage.getItem('employerProfileComplete');
-    if (profileComplete === 'pending') {
-      setProfileStatus('pending');
-    } else if (profileComplete === 'approved') {
-      setProfileStatus('approved');
-    } else {
-      setProfileStatus('incomplete');
-    }
+    setProfileStatus('approved');
   }, []);
 
   const stats = [
@@ -176,46 +169,7 @@ const EmployerDashboard: FC = () => {
     return `${diffInDays} days ago`;
   };
 
-  // Show profile completion pending message
-  if (profileStatus === 'incomplete') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-          <AlertCircle className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Complete Your Company Profile</h2>
-          <p className="text-gray-600 mb-6">
-            Please complete your company profile to start posting jobs and accessing all features.
-          </p>
-          <Link
-            to="/employer/company-profile"
-            className="inline-flex items-center px-6 py-3 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] transition-colors font-medium"
-          >
-            Complete Profile
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
-  // Show profile review pending message
-  if (profileStatus === 'pending') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-          <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Profile Under Review</h2>
-          <p className="text-gray-600 mb-6">
-            Your company profile is currently being reviewed by our verification team. This typically takes 1-2 business days.
-          </p>
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-sm text-yellow-800">
-              <strong>Next Steps:</strong> Once approved, you'll receive an agreement to sign and then can start posting jobs.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Show approval pending message if account is not approved
   if (accountStatus === 'pending') {
@@ -276,82 +230,19 @@ const EmployerDashboard: FC = () => {
                   </p>
                 </div>
               )}
-              {profileStatus === 'incomplete' || profileStatus === 'pending' ? (
-                <div 
-                  className="inline-flex items-center px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed"
-                  onClick={(e) => {
-                    if (profileStatus === 'incomplete') {
-                      // Show a simple alert for now, or you can implement the same tooltip system here
-                      alert('Please complete your company profile first to access this feature.');
-                    } else if (profileStatus === 'pending') {
-                      alert('Your profile is currently under review. You will be notified once it\'s approved.');
-                    }
-                  }}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Submit Job Requirement
-                </div>
-              ) : (
-                <Link
-                  to="/employer/create-job"
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Submit Job Requirement
-                </Link>
-              )}
+              <Link
+                to="/employer/create-job"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Submit Job Requirement
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Profile Completion Banner */}
-      {profileStatus === 'incomplete' && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="flex-shrink-0">
-                  <AlertCircle className="w-8 h-8 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-900">Complete Your Company Profile</h3>
-                  <p className="text-blue-700">You need to complete your company profile before you can access all features.</p>
-                </div>
-              </div>
-              <Link
-                to="/employer/company-profile"
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              >
-                Complete Profile
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Profile Pending Approval Banner */}
-      {profileStatus === 'pending' && (
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-yellow-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="flex-shrink-0">
-                  <Clock className="w-8 h-8 text-yellow-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-yellow-900">Profile Under Review</h3>
-                  <p className="text-yellow-700">Your company profile is being reviewed by our team. This typically takes 1-2 business days.</p>
-                </div>
-              </div>
-              <div className="text-sm text-yellow-700">
-                <Clock className="w-4 h-4 inline mr-1" />
-                Pending Approval
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Stats Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

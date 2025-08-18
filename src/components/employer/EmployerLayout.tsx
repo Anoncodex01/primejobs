@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useState, useRef, useEffect } from 'react';
+import React, { FC, ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Building2,
@@ -26,10 +26,7 @@ interface EmployerLayoutProps {
 const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileStatus, setProfileStatus] = useState<'pending' | 'approved' | 'incomplete'>('incomplete');
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipMessage, setTooltipMessage] = useState('');
-  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-  const tooltipRef = useRef<HTMLDivElement>(null);
+
   const location = useLocation();
 
   // Check profile status on component mount
@@ -40,7 +37,8 @@ const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
     } else if (profileComplete === 'approved') {
       setProfileStatus('approved');
     } else {
-      setProfileStatus('incomplete');
+      // Set to approved for full access
+      setProfileStatus('approved');
     }
   }, []);
 
@@ -49,78 +47,67 @@ const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
       name: 'Dashboard',
       href: '/employer/dashboard',
       icon: <Building2 className="w-5 h-5" />,
-      current: location.pathname === '/employer/dashboard',
-      disabled: false
+      current: location.pathname === '/employer/dashboard'
     },
     {
       name: 'Company Profile',
       href: '/employer/company-profile',
       icon: <Building2 className="w-5 h-5" />,
-      current: location.pathname === '/employer/company-profile',
-      disabled: false
+      current: location.pathname === '/employer/company-profile'
     },
     {
       name: 'Job Postings',
       href: '/employer/jobs',
       icon: <FileText className="w-5 h-5" />,
-      current: location.pathname.includes('/employer/job'),
-      disabled: profileStatus === 'incomplete' || profileStatus === 'pending'
+      current: location.pathname.includes('/employer/job')
     },
     {
       name: 'Applications',
       href: '/employer/applications',
       icon: <Users className="w-5 h-5" />,
-      current: location.pathname === '/employer/applications',
-      disabled: profileStatus === 'incomplete' || profileStatus === 'pending'
+      current: location.pathname === '/employer/applications'
     },
     {
       name: 'Interviews',
       href: '/employer/interviews',
       icon: <Calendar className="w-5 h-5" />,
-      current: location.pathname === '/employer/interviews',
-      disabled: profileStatus === 'incomplete' || profileStatus === 'pending'
+      current: location.pathname === '/employer/interviews'
     },
     {
       name: 'Placements',
       href: '/employer/placements',
       icon: <CheckCircle className="w-5 h-5" />,
-      current: location.pathname === '/employer/placements',
-      disabled: profileStatus === 'incomplete' || profileStatus === 'pending'
+      current: location.pathname === '/employer/placements'
     },
     {
       name: 'Agreements',
       href: '/employer/agreements',
       icon: <FileText className="w-5 h-5" />,
-      current: location.pathname === '/employer/agreements',
-      disabled: profileStatus === 'incomplete'
+      current: location.pathname === '/employer/agreements'
     },
     {
       name: 'Reference Check',
       href: '/employer/reference-check',
       icon: <Shield className="w-5 h-5" />,
-      current: location.pathname === '/employer/reference-check',
-      disabled: profileStatus === 'incomplete' || profileStatus === 'pending'
+      current: location.pathname === '/employer/reference-check'
     },
     {
       name: 'Invoices',
       href: '/employer/invoices',
       icon: <DollarSign className="w-5 h-5" />,
-      current: location.pathname === '/employer/invoices',
-      disabled: profileStatus === 'incomplete' || profileStatus === 'pending'
+      current: location.pathname === '/employer/invoices'
     },
     {
       name: 'Analytics',
       href: '/employer/analytics',
       icon: <TrendingUp className="w-5 h-5" />,
-      current: location.pathname === '/employer/analytics',
-      disabled: profileStatus === 'incomplete' || profileStatus === 'pending'
+      current: location.pathname === '/employer/analytics'
     },
     {
       name: 'Settings',
       href: '/employer/settings',
       icon: <Settings className="w-5 h-5" />,
-      current: location.pathname === '/employer/settings',
-      disabled: false
+      current: location.pathname === '/employer/settings'
     }
   ];
 
@@ -128,44 +115,7 @@ const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
     window.location.href = '/employer/login';
   };
 
-  const showHint = (event: React.MouseEvent, message: string) => {
-    event.preventDefault();
-    const rect = event.currentTarget.getBoundingClientRect();
-    const sidebarWidth = 256; // Width of the sidebar
-    const windowWidth = window.innerWidth;
-    
-    // Calculate position - try to center it in the available space
-    let x = sidebarWidth + 20;
-    let y = rect.top + rect.height / 2;
-    
-    // Ensure tooltip doesn't go off screen
-    if (x + 300 > windowWidth) { // 300px is approximate tooltip width
-      x = windowWidth - 320;
-    }
-    
-    setTooltipPosition({ x, y });
-    setTooltipMessage(message);
-    setShowTooltip(true);
-    
-    // Hide tooltip after 4 seconds
-    setTimeout(() => {
-      setShowTooltip(false);
-    }, 4000);
-  };
-
-  // Close tooltip when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (tooltipRef.current && !tooltipRef.current.contains(event.target as Node)) {
-        setShowTooltip(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -204,37 +154,18 @@ const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
             {navigation.map((item) => (
-              <div key={item.name}>
-                {item.disabled ? (
-                  <div
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium cursor-not-allowed ${
-                      'text-gray-400 bg-gray-50'
-                    }`}
-                    onClick={(e) => {
-                      if (profileStatus === 'incomplete') {
-                        showHint(e, 'Please complete your company profile first to access this feature.');
-                      } else if (profileStatus === 'pending') {
-                        showHint(e, 'Your profile is currently under review. You will be notified once it\'s approved.');
-                      }
-                    }}
-                  >
-                    {item.icon}
-                    {item.name}
-                  </div>
-                ) : (
-                  <Link
-                    to={item.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      item.current
-                        ? 'bg-[#114373] text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    {item.icon}
-                    {item.name}
-                  </Link>
-                )}
-              </div>
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  item.current
+                    ? 'bg-[#114373] text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {item.icon}
+                {item.name}
+              </Link>
             ))}
           </nav>
 
@@ -247,53 +178,20 @@ const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
               <Building2 className="w-5 h-5" />
               Company Profile
             </Link>
-            {profileStatus === 'incomplete' || profileStatus === 'pending' ? (
-              <>
-                <div 
-                  className="flex items-center gap-3 px-3 py-2 bg-gray-50 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed"
-                  onClick={(e) => {
-                    if (profileStatus === 'incomplete') {
-                      showHint(e, 'Please complete your company profile first to access this feature.');
-                    } else if (profileStatus === 'pending') {
-                      showHint(e, 'Your profile is currently under review. You will be notified once it\'s approved.');
-                    }
-                  }}
-                >
-                  <Plus className="w-5 h-5" />
-                  Quick Post
-                </div>
-                <div 
-                  className="flex items-center gap-3 px-3 py-2 bg-gray-50 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed"
-                  onClick={(e) => {
-                    if (profileStatus === 'incomplete') {
-                      showHint(e, 'Please complete your company profile first to access this feature.');
-                    } else if (profileStatus === 'pending') {
-                      showHint(e, 'Your profile is currently under review. You will be notified once it\'s approved.');
-                    }
-                  }}
-                >
-                  <Plus className="w-5 h-5" />
-                  Enhanced Posting
-                </div>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/employer/job/create"
-                  className="flex items-center gap-3 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-                >
-                  <Plus className="w-5 h-5" />
-                  Quick Post
-                </Link>
-                <Link
-                  to="/employer/enhanced-job-posting"
-                  className="flex items-center gap-3 px-3 py-2 bg-[#114373] text-white rounded-lg text-sm font-medium hover:bg-[#0d3559] transition-colors"
-                >
-                  <Plus className="w-5 h-5" />
-                  Enhanced Posting
-                </Link>
-              </>
-            )}
+            <Link
+              to="/employer/job/create"
+              className="flex items-center gap-3 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              Quick Post
+            </Link>
+            <Link
+              to="/employer/enhanced-job-posting"
+              className="flex items-center gap-3 px-3 py-2 bg-[#114373] text-white rounded-lg text-sm font-medium hover:bg-[#0d3559] transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              Enhanced Posting
+            </Link>
           </div>
 
           {/* User section */}
@@ -348,29 +246,7 @@ const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
         </main>
       </div>
 
-      {/* Tooltip */}
-      {showTooltip && (
-        <div
-          ref={tooltipRef}
-          className="fixed z-50 bg-gray-800 text-white px-4 py-3 rounded-lg text-sm shadow-xl max-w-sm border border-gray-700"
-          style={{
-            left: tooltipPosition.x,
-            top: tooltipPosition.y,
-            transform: 'translateY(-50%)'
-          }}
-        >
-          <div className="flex items-start gap-2">
-            <div className="flex-shrink-0 mt-0.5">
-              <AlertCircle className="w-4 h-4 text-yellow-400" />
-            </div>
-            <div>
-              <p className="text-white font-medium">{tooltipMessage}</p>
-            </div>
-          </div>
-          {/* Arrow pointing to the left */}
-          <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-1 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-gray-800"></div>
-        </div>
-      )}
+      
     </div>
   );
 };
