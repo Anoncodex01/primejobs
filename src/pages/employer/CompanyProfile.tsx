@@ -29,6 +29,7 @@ interface CompanyProfileForm {
   companyStage: string;
   website: string;
   address: string;
+  isPoBox: boolean;
   city: string;
   state: string;
   country: string;
@@ -48,6 +49,8 @@ interface UploadedFiles {
   businessLicense: File | null;
   taxCertificate: File | null;
   registrationCertificate: File | null;
+  companyProfile: File | null;
+  companyLogo: File | null;
 }
 
 const CompanyProfile: FC = () => {
@@ -73,6 +76,7 @@ const CompanyProfile: FC = () => {
     companyStage: '',
     website: '',
     address: '',
+    isPoBox: false,
     city: '',
     state: '',
     country: '',
@@ -91,7 +95,9 @@ const CompanyProfile: FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFiles>({
     businessLicense: null,
     taxCertificate: null,
-    registrationCertificate: null
+    registrationCertificate: null,
+    companyProfile: null,
+    companyLogo: null
   });
 
   const handleInputChange = (field: keyof CompanyProfileForm, value: string) => {
@@ -141,31 +147,55 @@ const CompanyProfile: FC = () => {
   ];
 
   const industries = [
-    'Technology',
-    'Healthcare',
-    'Finance',
-    'Manufacturing',
-    'Retail',
-    'Education',
-    'Consulting',
-    'Real Estate',
-    'Transportation',
-    'Entertainment',
-    'Other'
+    'Agriculture & Agribusiness',
+    'Automotive & Transport',
+    'Banking & Financial Services',
+    'Construction & Real Estate',
+    'Consulting & Advisory',
+    'Education & Training',
+    'Energy, Oil & Gas',
+    'Engineering & Manufacturing',
+    'Entertainment, Media & Advertising',
+    'FMCG (Fast-Moving Consumer Goods)',
+    'Healthcare & Pharmaceuticals',
+    'Hospitality, Travel & Tourism',
+    'Information Technology & Software',
+    'Logistics & Supply Chain',
+    'Mining & Metals',
+    'NGO & Non-Profit Organizations',
+    'Professional Services (Legal, Audit, Accounting)',
+    'Public Sector & Government',
+    'Retail & E-commerce',
+    'Telecommunications',
+    'Textiles, Apparel & Fashion',
+    'Utilities & Infrastructure',
+    'Others (Specify)'
   ];
 
   const subIndustries = {
-    'Technology': ['Software Development', 'IT Services', 'Cybersecurity', 'Artificial Intelligence', 'E-commerce', 'Fintech', 'Edtech', 'Healthtech'],
-    'Healthcare': ['Pharmaceuticals', 'Medical Devices', 'Healthcare Services', 'Mental Health', 'Telemedicine', 'Biotechnology'],
-    'Finance': ['Banking', 'Insurance', 'Investment', 'Accounting', 'Financial Services', 'Cryptocurrency'],
-    'Manufacturing': ['Automotive', 'Electronics', 'Textiles', 'Food & Beverage', 'Chemicals', 'Aerospace'],
-    'Retail': ['Fashion', 'Electronics', 'Grocery', 'Home & Garden', 'Luxury Goods', 'Online Retail'],
-    'Education': ['K-12', 'Higher Education', 'Online Learning', 'Corporate Training', 'Special Education'],
-    'Consulting': ['Management Consulting', 'IT Consulting', 'Financial Consulting', 'HR Consulting', 'Strategy Consulting'],
-    'Real Estate': ['Residential', 'Commercial', 'Property Management', 'Construction', 'Architecture'],
-    'Transportation': ['Logistics', 'Freight', 'Passenger Transport', 'Supply Chain', 'Warehousing'],
-    'Entertainment': ['Media', 'Gaming', 'Sports', 'Music', 'Film & TV', 'Events'],
-    'Other': ['Agriculture', 'Energy', 'Non-profit', 'Government', 'Legal Services']
+    'Agriculture & Agribusiness': ['Crop Production', 'Livestock & Poultry', 'Dairy Farming', 'Agritech / Agri-Engineering', 'Agro-processing & Packaging', 'Fisheries & Aquaculture'],
+    'Automotive & Transport': ['Vehicle Manufacturing', 'Auto Parts & Accessories', 'Car Dealerships & Sales', 'Public Transport Services', 'Freight & Passenger Transport', 'Aviation & Airlines', 'Marine & Shipping'],
+    'Banking & Financial Services': ['Commercial Banking', 'Investment Banking', 'Insurance & Reinsurance', 'Microfinance Institutions', 'Asset & Wealth Management', 'Fintech & Digital Payments'],
+    'Construction & Real Estate': ['Residential Construction', 'Commercial Construction', 'Infrastructure Development', 'Property Development', 'Real Estate Agencies', 'Facilities Management'],
+    'Consulting & Advisory': ['Management Consulting', 'HR & Recruitment Consulting', 'Financial Advisory', 'IT & Technology Consulting', 'Legal & Compliance Consulting', 'Strategy & Operations Consulting'],
+    'Education & Training': ['Schools & Universities', 'Vocational Training Institutes', 'Corporate Training Providers', 'Online Learning / EdTech', 'Research & Development Institutions'],
+    'Energy, Oil & Gas': ['Oil Exploration & Production', 'Gas Distribution & Supply', 'Renewable Energy (Solar, Wind, Hydro)', 'Power Generation & Distribution', 'Energy Equipment & Services'],
+    'Engineering & Manufacturing': ['Heavy Machinery & Industrial Equipment', 'Electrical & Electronics', 'Chemical & Process Engineering', 'Food & Beverage Manufacturing', 'Metal & Steel Fabrication', 'Consumer Goods Manufacturing'],
+    'Entertainment, Media & Advertising': ['Television & Broadcasting', 'Film Production & Distribution', 'Music & Performing Arts', 'Publishing & Print Media', 'Advertising & Marketing Agencies', 'Digital Media & Influencer Marketing'],
+    'FMCG (Fast-Moving Consumer Goods)': ['Beverages (Soft Drinks, Juices)', 'Packaged Foods', 'Personal Care & Cosmetics', 'Household Products', 'Tobacco & Confectionery'],
+    'Healthcare & Pharmaceuticals': ['Hospitals & Clinics', 'Pharmaceuticals Manufacturing', 'Medical Devices & Equipment', 'Health Insurance', 'Biotechnology', 'Wellness & Fitness'],
+    'Hospitality, Travel & Tourism': ['Hotels & Resorts', 'Restaurants & Catering', 'Airlines & Travel Agencies', 'Tour Operators', 'Cruise Lines', 'Event Management'],
+    'Information Technology & Software': ['Software Development', 'IT Services & Support', 'Cloud Computing & Data Centers', 'Cybersecurity', 'Artificial Intelligence & Machine Learning', 'E-commerce Platforms'],
+    'Logistics & Supply Chain': ['Warehousing & Distribution', 'Freight Forwarding', 'Courier & Express Services', 'Port & Terminal Operations', 'Cold Chain Logistics', 'Third-Party Logistics (3PL)'],
+    'Mining & Metals': ['Gold Mining', 'Diamond & Gemstones', 'Coal Mining', 'Iron & Steel', 'Non-ferrous Metals (Copper, Aluminum)', 'Quarrying & Aggregates'],
+    'NGO & Non-Profit Organizations': ['International NGOs', 'Community Development Organizations', 'Human Rights & Advocacy', 'Environmental NGOs', 'Humanitarian Aid & Relief', 'Foundations & Trusts'],
+    'Professional Services (Legal, Audit, Accounting)': ['Law Firms', 'Tax Advisory', 'Audit & Assurance', 'Accounting & Bookkeeping', 'Corporate Governance Advisory'],
+    'Public Sector & Government': ['Ministries & Government Departments', 'Regulatory Authorities', 'Public Healthcare Institutions', 'Education Boards & Universities', 'Defense & Security', 'Local Government Authorities'],
+    'Retail & E-commerce': ['Supermarkets & Hypermarkets', 'Fashion & Apparel Retail', 'Electronics & Appliances Retail', 'Online Marketplaces', 'Specialty Retail (Books, Furniture, Jewelry)'],
+    'Telecommunications': ['Mobile Network Operators', 'Internet Service Providers', 'Satellite Communications', 'Data & Cloud Services', 'Telecom Equipment Manufacturing'],
+    'Textiles, Apparel & Fashion': ['Textile Mills & Weaving', 'Apparel Manufacturing', 'Footwear & Accessories', 'Fashion Design Houses', 'Luxury & Lifestyle Brands'],
+    'Utilities & Infrastructure': ['Water Supply & Treatment', 'Power Transmission & Distribution', 'Waste Management & Recycling', 'Road & Highway Development', 'Ports & Airports Infrastructure'],
+    'Others (Specify)': ['Custom Industry']
   };
 
   const employeeCounts = [
@@ -259,6 +289,48 @@ const CompanyProfile: FC = () => {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Company Details</h2>
               <p className="text-gray-600 mb-6">Basic company information and structure</p>
               
+              {/* Company Logo - Centered Upload */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Company Logo *
+                </label>
+                <div className="flex flex-col items-center gap-4">
+                  {uploadedFiles.companyLogo ? (
+                    <img 
+                      src={URL.createObjectURL(uploadedFiles.companyLogo)} 
+                      alt="Company Logo" 
+                      className="w-20 h-20 object-contain rounded-full border border-gray-200 shadow-sm"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center">
+                      <Upload className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.svg"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload('companyLogo', file);
+                      }}
+                      className="hidden"
+                      id="companyLogo"
+                      required
+                    />
+                    <label htmlFor="companyLogo" className="cursor-pointer">
+                      <span className="text-[#114373] hover:text-[#0d3559] font-medium">
+                        {uploadedFiles.companyLogo ? 'Change Logo' : 'Choose file'}
+                      </span>
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">JPG, PNG, SVG files up to 5MB</p>
+                    {uploadedFiles.companyLogo && (
+                      <p className="text-xs text-gray-600 mt-1">{uploadedFiles.companyLogo.name}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -310,19 +382,39 @@ const CompanyProfile: FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sub-Industry
+                    Sub-Industry *
                   </label>
-                  <select
-                    value={form.subIndustry}
-                    onChange={(e) => handleInputChange('subIndustry', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
-                    disabled={!form.industry}
-                  >
-                    <option value="">Select sub-industry</option>
-                    {form.industry && subIndustries[form.industry as keyof typeof subIndustries]?.map(subIndustry => (
-                      <option key={subIndustry} value={subIndustry}>{subIndustry}</option>
-                    ))}
-                  </select>
+                  {form.industry && form.industry !== 'Others (Specify)' ? (
+                    <select
+                      value={form.subIndustry}
+                      onChange={(e) => handleInputChange('subIndustry', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                      required
+                    >
+                      <option value="">Select sub-industry</option>
+                      {subIndustries[form.industry as keyof typeof subIndustries]?.map(subIndustry => (
+                        <option key={subIndustry} value={subIndustry}>{subIndustry}</option>
+                      ))}
+                    </select>
+                  ) : form.industry === 'Others (Specify)' ? (
+                    <input
+                      type="text"
+                      value={form.subIndustry}
+                      onChange={(e) => handleInputChange('subIndustry', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                      placeholder="Enter your specific industry"
+                      required
+                    />
+                  ) : (
+                    <select
+                      value={form.subIndustry}
+                      onChange={(e) => handleInputChange('subIndustry', e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                      disabled
+                    >
+                      <option value="">Select industry first</option>
+                    </select>
+                  )}
                 </div>
 
                 <div>
@@ -391,7 +483,7 @@ const CompanyProfile: FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Website
+                    Website *
                   </label>
                   <div className="relative">
                     <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -401,7 +493,34 @@ const CompanyProfile: FC = () => {
                       onChange={(e) => handleInputChange('website', e.target.value)}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
                       placeholder="https://www.example.com"
+                      required
                     />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Company Profile/Brochure
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-[#114373] transition-colors">
+                    <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600 mb-2">
+                      Upload company profile, brochure, or presentation
+                    </p>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.ppt,.pptx"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload('companyProfile', file);
+                      }}
+                      className="hidden"
+                      id="companyProfile"
+                    />
+                    <label htmlFor="companyProfile" className="cursor-pointer">
+                      <span className="text-[#114373] hover:text-[#0d3559] font-medium">Choose file</span>
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">PDF, DOC, PPT files up to 10MB</p>
                   </div>
                 </div>
 
@@ -437,16 +556,30 @@ const CompanyProfile: FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Address *
                   </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      value={form.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
-                      placeholder="Street address"
-                      required
-                    />
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id="isPoBox"
+                        checked={form.isPoBox}
+                        onChange={(e) => handleInputChange('isPoBox', e.target.checked.toString())}
+                        className="w-4 h-4 text-[#114373] border-gray-300 rounded focus:ring-[#114373]"
+                      />
+                      <label htmlFor="isPoBox" className="text-sm text-gray-700">
+                        This is a PO Box address
+                      </label>
+                    </div>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="text"
+                        value={form.address}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                        placeholder={form.isPoBox ? "PO Box number" : "Street address"}
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -587,6 +720,32 @@ const CompanyProfile: FC = () => {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Company Profile/Brochure *
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#114373] transition-colors">
+                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600 mb-2">
+                      {uploadedFiles.companyProfile ? uploadedFiles.companyProfile.name : 'Upload company profile or brochure'}
+                    </p>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.ppt,.pptx"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload('companyProfile', file);
+                      }}
+                      className="hidden"
+                      id="companyProfile"
+                      required
+                    />
+                    <label htmlFor="companyProfile" className="cursor-pointer">
+                      <span className="text-[#114373] hover:text-[#0d3559] font-medium">Choose file</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Business License *
                   </label>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#114373] transition-colors">
@@ -668,12 +827,13 @@ const CompanyProfile: FC = () => {
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
                   <div>
-                    <h4 className="font-medium text-yellow-900 mb-1">Document Requirements</h4>
+                    <h4 className="font-medium text-yellow-900 mb-1">File Requirements</h4>
                     <ul className="text-sm text-yellow-700 space-y-1">
-                      <li>• All documents must be in PDF, JPG, or PNG format</li>
-                      <li>• Maximum file size: 5MB per document</li>
-                      <li>• Documents must be clearly legible and up-to-date</li>
-                      <li>• All documents will be securely stored and encrypted</li>
+                      <li>• Company Logo: JPG, PNG, SVG format (max 5MB)</li>
+                      <li>• Company Profile: PDF, DOC, DOCX, PPT, PPTX format (max 10MB)</li>
+                      <li>• Legal Documents: PDF, JPG, or PNG format (max 5MB per document)</li>
+                      <li>• All files must be clearly legible and up-to-date</li>
+                      <li>• All files will be securely stored and encrypted</li>
                     </ul>
                   </div>
                 </div>
@@ -705,8 +865,22 @@ const CompanyProfile: FC = () => {
                         <p className="font-medium">{form.industry}</p>
                       </div>
                       <div>
+                        <span className="text-sm text-gray-500">Sub-Industry:</span>
+                        <p className="font-medium">{form.subIndustry || 'Not specified'}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-500">Website:</span>
+                        <p className="font-medium">{form.website}</p>
+                      </div>
+                      <div>
                         <span className="text-sm text-gray-500">Employee Count:</span>
                         <p className="font-medium">{form.employeeCount}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-500">Address:</span>
+                        <p className="font-medium">
+                          {form.isPoBox ? `PO Box ${form.address}` : form.address}
+                        </p>
                       </div>
                       <div>
                         <span className="text-sm text-gray-500">Location:</span>
@@ -739,15 +913,33 @@ const CompanyProfile: FC = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Uploaded Documents</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Uploaded Files</h3>
                   <div className="space-y-2">
-                    {Object.entries(uploadedFiles).map(([key, file]) => (
-                      <div key={key} className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                        <span className="text-sm text-gray-600">{file ? file.name : 'Not uploaded'}</span>
-                      </div>
-                    ))}
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span className="text-sm font-medium">Company Logo:</span>
+                      <span className="text-sm text-gray-600">{uploadedFiles.companyLogo ? uploadedFiles.companyLogo.name : 'Not uploaded'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span className="text-sm font-medium">Company Profile:</span>
+                      <span className="text-sm text-gray-600">{uploadedFiles.companyProfile ? uploadedFiles.companyProfile.name : 'Not uploaded'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span className="text-sm font-medium">Business License:</span>
+                      <span className="text-sm text-gray-600">{uploadedFiles.businessLicense ? uploadedFiles.businessLicense.name : 'Not uploaded'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span className="text-sm font-medium">Tax Certificate:</span>
+                      <span className="text-sm text-gray-600">{uploadedFiles.taxCertificate ? uploadedFiles.taxCertificate.name : 'Not uploaded'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span className="text-sm font-medium">Registration Certificate:</span>
+                      <span className="text-sm text-gray-600">{uploadedFiles.registrationCertificate ? uploadedFiles.registrationCertificate.name : 'Not uploaded'}</span>
+                    </div>
                   </div>
                 </div>
 

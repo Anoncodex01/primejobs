@@ -17,7 +17,32 @@ const EmployerLogin: FC = () => {
 
     // Simulate API call
     setTimeout(() => {
-      if (email === 'employer@example.com' && password === 'password') {
+      // Check for dummy credentials
+      if (email === 'test@company.com' && password === 'password123') {
+        // Set authentication tokens
+        localStorage.setItem('authToken', 'employer-token');
+        localStorage.setItem('userType', 'employer');
+        localStorage.setItem('userData', JSON.stringify({
+          firstName: 'Test',
+          lastName: 'User',
+          email: 'test@company.com',
+          phone: '+1234567890',
+          companyName: 'Test Company Ltd',
+          jobTitle: 'HR Manager'
+        }));
+        
+        // Check if profile is complete
+        const profileComplete = localStorage.getItem('employerProfileComplete');
+        if (profileComplete === 'pending' || profileComplete === 'approved') {
+          navigate('/employer/dashboard');
+        } else {
+          // Redirect to complete profile
+          navigate('/employer/company-profile');
+        }
+      } else if (email === 'employer@example.com' && password === 'password') {
+        // Legacy credentials for backward compatibility
+        localStorage.setItem('authToken', 'employer-token');
+        localStorage.setItem('userType', 'employer');
         navigate('/employer/dashboard');
       } else {
         setError('Invalid email or password');
@@ -117,6 +142,13 @@ const EmployerLogin: FC = () => {
                 Create an account
               </Link>
             </p>
+            
+            {/* Demo Credentials */}
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs text-blue-800 font-medium mb-1">Demo Credentials:</p>
+              <p className="text-xs text-blue-700">Email: test@company.com</p>
+              <p className="text-xs text-blue-700">Password: password123</p>
+            </div>
           </div>
         </div>
 
