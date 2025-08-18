@@ -205,6 +205,18 @@ const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
       current: location.pathname === '/admin/employers'
     },
     {
+      name: 'Job Requirements',
+      href: '/admin/job-requirements',
+      icon: <FileText className="w-5 h-5" />,
+      current: location.pathname === '/admin/job-requirements'
+    },
+    {
+      name: 'Interview Evaluation',
+      href: '/admin/interview-evaluation',
+      icon: <UserCheck className="w-5 h-5" />,
+      current: location.pathname === '/admin/interview-evaluation'
+    },
+    {
       name: 'Applications',
       href: '/admin/applications',
       icon: <FileText className="w-5 h-5" />,

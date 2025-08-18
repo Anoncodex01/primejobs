@@ -18,10 +18,17 @@ export interface JobRequirement {
   position: string;
   jobDescription: string;
   jobRequirements: string;
+  location: string;
   salaryRange: {
     min: number;
     max: number;
     currency: string;
+  };
+  viewToCandidates: boolean;
+  testPaper?: {
+    file: File;
+    fileName: string;
+    hasAnswerSheet: boolean;
   };
   status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'published';
   submittedAt?: Date;

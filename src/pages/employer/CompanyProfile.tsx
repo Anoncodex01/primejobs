@@ -451,12 +451,13 @@ const CompanyProfile: FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Annual Revenue
+                    Annual Revenue *
                   </label>
                   <select
                     value={form.annualRevenue}
                     onChange={(e) => handleInputChange('annualRevenue', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                    required
                   >
                     <option value="">Select revenue range</option>
                     {annualRevenueRanges.map(revenue => (
@@ -875,6 +876,10 @@ const CompanyProfile: FC = () => {
                       <div>
                         <span className="text-sm text-gray-500">Employee Count:</span>
                         <p className="font-medium">{form.employeeCount}</p>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-500">Annual Revenue:</span>
+                        <p className="font-medium">{form.annualRevenue}</p>
                       </div>
                       <div>
                         <span className="text-sm text-gray-500">Address:</span>

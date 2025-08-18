@@ -6,7 +6,8 @@ import {
   Lock,
   Eye,
   EyeOff,
-  AlertCircle
+  AlertCircle,
+  Info
 } from 'lucide-react';
 
 const CandidateLogin: FC = () => {
@@ -52,6 +53,16 @@ const CandidateLogin: FC = () => {
     if (error) {
       setError('');
     }
+  };
+
+  const fillDemoCredentials = (type: 'developer' | 'designer' | 'manager') => {
+    const credentials = {
+      developer: { email: 'john.developer@example.com', password: 'demo123' },
+      designer: { email: 'sarah.designer@example.com', password: 'demo123' },
+      manager: { email: 'mike.manager@example.com', password: 'demo123' }
+    };
+    
+    setLoginData(credentials[type]);
   };
 
   return (
@@ -162,6 +173,43 @@ const CandidateLogin: FC = () => {
               </button>
             </div>
           </form>
+
+          {/* Demo Credentials */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <Info className="w-4 h-4 text-blue-600" />
+              <h3 className="text-sm font-medium text-blue-900">Demo Credentials</h3>
+            </div>
+            <p className="text-xs text-blue-700 mb-3">
+              Use these credentials to test the platform:
+            </p>
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => fillDemoCredentials('developer')}
+                className="w-full text-left p-2 bg-white border border-blue-200 rounded text-xs hover:bg-blue-100 transition-colors"
+              >
+                <div className="font-medium text-blue-900">👨‍💻 Software Developer</div>
+                <div className="text-blue-700">john.developer@example.com / demo123</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemoCredentials('designer')}
+                className="w-full text-left p-2 bg-white border border-blue-200 rounded text-xs hover:bg-blue-100 transition-colors"
+              >
+                <div className="font-medium text-blue-900">🎨 UI/UX Designer</div>
+                <div className="text-blue-700">sarah.designer@example.com / demo123</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemoCredentials('manager')}
+                className="w-full text-left p-2 bg-white border border-blue-200 rounded text-xs hover:bg-blue-100 transition-colors"
+              >
+                <div className="font-medium text-blue-900">👔 Project Manager</div>
+                <div className="text-blue-700">mike.manager@example.com / demo123</div>
+              </button>
+            </div>
+          </div>
 
           {/* Register Link */}
           <div className="mt-6 text-center">

@@ -54,6 +54,7 @@ import CandidateApplications from './pages/candidate/Applications';
 import SavedJobs from './pages/candidate/SavedJobs';
 import CVBuilder from './pages/candidate/CVBuilder';
 import CandidateSettings from './pages/candidate/Settings';
+import CandidateApplicationForm from './pages/candidate/ApplicationForm';
 
 // Admin pages
 import AdminLayout from './components/admin/AdminLayout';
@@ -69,6 +70,8 @@ import AdminReports from './pages/admin/Reports';
 import AdminCommunications from './pages/admin/Communications';
 import AdminPerformance from './pages/admin/Performance';
 import AdminSettings from './pages/admin/Settings';
+import AdminJobRequirements from './pages/admin/JobRequirements';
+import AdminInterviewEvaluation from './pages/admin/InterviewEvaluation';
 
 // ScrollToTop component to handle scroll position on route changes
 function ScrollToTop() {
@@ -297,6 +300,7 @@ function App() {
           <Route path="/candidate/applications" element={<CandidateLayout><CandidateApplications /></CandidateLayout>} />
           <Route path="/candidate/saved-jobs" element={<CandidateLayout><SavedJobs /></CandidateLayout>} />
           <Route path="/candidate/cv-builder" element={<CandidateLayout><CVBuilder /></CandidateLayout>} />
+          <Route path="/candidate/application-form" element={<CandidateLayout><CandidateApplicationForm /></CandidateLayout>} />
           <Route path="/candidate/settings" element={<CandidateLayout><CandidateSettings /></CandidateLayout>} />
 
           {/* Admin Routes */}
@@ -304,6 +308,8 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
           <Route path="/admin/candidates" element={<AdminLayout><AdminCandidates /></AdminLayout>} />
           <Route path="/admin/employers" element={<AdminLayout><AdminEmployers /></AdminLayout>} />
+          <Route path="/admin/job-requirements" element={<AdminLayout><AdminJobRequirements /></AdminLayout>} />
+          <Route path="/admin/interview-evaluation" element={<AdminLayout><AdminInterviewEvaluation /></AdminLayout>} />
           <Route path="/admin/applications" element={<AdminLayout><AdminApplications /></AdminLayout>} />
           <Route path="/admin/interviews" element={<AdminLayout><AdminInterviews /></AdminLayout>} />
           <Route path="/admin/placements" element={<AdminLayout><AdminPlacements /></AdminLayout>} />
