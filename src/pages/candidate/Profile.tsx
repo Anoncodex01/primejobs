@@ -109,6 +109,21 @@ interface Accomplishment {
   year: string;
 }
 
+interface Reference {
+  id: string;
+  fullName: string;
+  designation: string;
+  organization: string;
+  email: string;
+  phone?: string;
+  linkedinProfile?: string;
+  relationship: 'manager' | 'colleague' | 'client' | 'mentor' | 'supervisor' | 'other';
+  verificationStatus: 'pending' | 'verified' | 'rejected' | 'unreachable';
+  verificationDate?: string;
+  verificationComments?: string;
+  isAuthorized: boolean;
+}
+
 interface OnlinePresence {
   linkedin?: string;
   github?: string;
@@ -197,6 +212,9 @@ interface CandidateProfile {
   // Online Presence
   onlinePresence: OnlinePresence;
   
+  // References
+  references: Reference[];
+  
   // Additional Information
   photoUrl?: string;
   resumeUrl?: string;
@@ -207,15 +225,16 @@ interface CandidateProfile {
   allowContactFromEmployers: boolean;
   
   // Profile Completion
-  profileCompletion: {
-    personalInfo: boolean;
-    employment: boolean;
-    education: boolean;
-    salary: boolean;
-    profileContent: boolean;
-    skills: boolean;
-    preferences: boolean;
-  };
+           profileCompletion: {
+           personalInfo: boolean;
+           employment: boolean;
+           education: boolean;
+           salary: boolean;
+           profileContent: boolean;
+           skills: boolean;
+           preferences: boolean;
+           references: boolean;
+         };
 }
 
 const CandidateProfile: FC = () => {
@@ -228,6 +247,8 @@ const CandidateProfile: FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [showProfileCompletion, setShowProfileCompletion] = useState(false);
+  const [showReferenceModal, setShowReferenceModal] = useState(false);
+  const [editingReference, setEditingReference] = useState<Reference | null>(null);
 
   // Form state
   const [profile, setProfile] = useState<CandidateProfile>({
@@ -383,6 +404,50 @@ const CandidateProfile: FC = () => {
         year: '2023'
       }
     ],
+    references: [
+      {
+        id: '1',
+        fullName: 'Sarah Johnson',
+        designation: 'Senior HR Manager',
+        organization: 'TechCorp Solutions',
+        email: 'sarah.johnson@techcorp.com',
+        phone: '+1-555-123-4567',
+        linkedinProfile: 'https://linkedin.com/in/sarahjohnson',
+        relationship: 'manager',
+        verificationStatus: 'verified',
+        verificationDate: '2024-01-15',
+        verificationComments: 'Excellent team player with strong technical skills',
+        isAuthorized: true
+      },
+      {
+        id: '2',
+        fullName: 'Michael Chen',
+        designation: 'Technical Lead',
+        organization: 'InnovateTech Inc',
+        email: 'michael.chen@innovatetech.com',
+        phone: '+1-555-987-6543',
+        linkedinProfile: 'https://linkedin.com/in/michaelchen',
+        relationship: 'colleague',
+        verificationStatus: 'pending',
+        verificationDate: undefined,
+        verificationComments: undefined,
+        isAuthorized: true
+      },
+      {
+        id: '3',
+        fullName: 'Emily Rodriguez',
+        designation: 'Project Manager',
+        organization: 'Digital Solutions Ltd',
+        email: 'emily.rodriguez@digitalsolutions.com',
+        phone: '+1-555-456-7890',
+        linkedinProfile: 'https://linkedin.com/in/emilyrodriguez',
+        relationship: 'client',
+        verificationStatus: 'pending',
+        verificationDate: undefined,
+        verificationComments: undefined,
+        isAuthorized: true
+      }
+    ],
     jobPreferences: {
       jobType: 'permanent',
       shiftPreference: 'day',
@@ -409,7 +474,8 @@ const CandidateProfile: FC = () => {
       salary: false,
       profileContent: false,
       skills: false,
-      preferences: false
+      preferences: false,
+      references: true
     }
   });
 
@@ -569,6 +635,48 @@ const CandidateProfile: FC = () => {
         previousEmployments: prev.previousEmployments.filter(emp => emp.id !== id)
       }));
     }
+  };
+
+  // Reference handlers
+  const handleAddReference = (reference: Omit<Reference, 'id'>) => {
+    const newReference: Reference = {
+      ...reference,
+      id: Date.now().toString(),
+      verificationStatus: 'pending',
+      isAuthorized: true
+    };
+    
+    setProfile(prev => ({
+      ...prev,
+      references: [...prev.references, newReference]
+    }));
+    
+    setShowReferenceModal(false);
+    setEditingReference(null);
+  };
+
+  const handleEditReference = (reference: Reference) => {
+    setEditingReference(reference);
+    setShowReferenceModal(true);
+  };
+
+  const handleUpdateReference = (id: string, reference: Partial<Reference>) => {
+    setProfile(prev => ({
+      ...prev,
+      references: prev.references.map(ref => 
+        ref.id === id ? { ...ref, ...reference } : ref
+      )
+    }));
+    
+    setShowReferenceModal(false);
+    setEditingReference(null);
+  };
+
+  const handleDeleteReference = (id: string) => {
+    setProfile(prev => ({
+      ...prev,
+      references: prev.references.filter(ref => ref.id !== id)
+    }));
   };
 
   const handleSave = async () => {
@@ -1338,6 +1446,156 @@ const CandidateProfile: FC = () => {
               </div>
             </div>
           </div>
+
+          {/* References Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">References / Referees</h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Provide up to 3 professional references who can vouch for your skills and experience. 
+                    Once your references are verified, your profile will receive a 5-Star rating on our portal.
+                  </p>
+                </div>
+                {isEditing && (
+                  <button
+                    onClick={() => setShowReferenceModal(true)}
+                    className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Reference
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="p-6">
+              {profile.references.length === 0 ? (
+                <div className="text-center py-8">
+                  <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">No references added yet</p>
+                  {isEditing && (
+                    <button
+                      onClick={() => setShowReferenceModal(true)}
+                      className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559]"
+                    >
+                      Add Your First Reference
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {profile.references.map((reference, index) => (
+                    <div key={reference.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="font-medium text-gray-900">{reference.fullName}</h4>
+                          <p className="text-sm text-gray-600">{reference.designation} at {reference.organization}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {/* Verification Status Badge */}
+                          {reference.verificationStatus === 'verified' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                              <CheckCircle className="w-3 h-3" />
+                              Verified ✅
+                            </span>
+                          )}
+                          {reference.verificationStatus === 'pending' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                              <Clock className="w-3 h-3" />
+                              Awaiting response
+                            </span>
+                          )}
+                          {reference.verificationStatus === 'rejected' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                              <X className="w-3 h-3" />
+                              Could not verify
+                            </span>
+                          )}
+                          {reference.verificationStatus === 'unreachable' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                              <AlertCircle className="w-3 h-3" />
+                              Unreachable
+                            </span>
+                          )}
+                          
+                          {isEditing && (
+                            <button
+                              onClick={() => handleEditReference(reference)}
+                              className="p-1 text-gray-400 hover:text-gray-600"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">Email:</span>
+                          <span className="ml-2 text-gray-900">{reference.email}</span>
+                        </div>
+                        {reference.phone && (
+                          <div>
+                            <span className="text-gray-600">Phone:</span>
+                            <span className="ml-2 text-gray-900">{reference.phone}</span>
+                          </div>
+                        )}
+                        <div>
+                          <span className="text-gray-600">Relationship:</span>
+                          <span className="ml-2 text-gray-900 capitalize">{reference.relationship}</span>
+                        </div>
+                        {reference.linkedinProfile && (
+                          <div>
+                            <span className="text-gray-600">LinkedIn:</span>
+                            <a
+                              href={reference.linkedinProfile}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="ml-2 text-[#114373] hover:underline flex items-center gap-1"
+                            >
+                              View Profile
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {reference.verificationComments && (
+                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                          <p className="text-sm text-gray-700">
+                            <span className="font-medium">Verification Comments:</span> {reference.verificationComments}
+                          </p>
+                        </div>
+                      )}
+                      
+                      {!reference.isAuthorized && (
+                        <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-sm text-yellow-800">
+                            <AlertCircle className="w-4 h-4 inline mr-1" />
+                            Authorization pending for verification contact
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* 5-Star Rating Info */}
+              {profile.references.filter(r => r.verificationStatus === 'verified').length >= 3 && (
+                <div className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-5 h-5 text-yellow-600" />
+                    <h4 className="font-medium text-yellow-800">5-Star Profile Rating Achieved!</h4>
+                  </div>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    All your references have been verified. Your profile now has the highest rating on our portal.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Sidebar */}
@@ -1704,6 +1962,207 @@ const EmploymentModal: FC<EmploymentModalProps> = ({ isOpen, onClose, employment
               className="flex-1 px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559]"
             >
               {employment ? 'Update Employment' : 'Add Employment'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Reference Modal Component
+interface ReferenceModalProps {
+  reference?: Reference | null;
+  onSave: (reference: Omit<Reference, 'id'>) => void;
+  onClose: () => void;
+}
+
+const ReferenceModal: FC<ReferenceModalProps> = ({ reference, onSave, onClose }) => {
+  const [formData, setFormData] = useState({
+    fullName: reference?.fullName || '',
+    designation: reference?.designation || '',
+    organization: reference?.organization || '',
+    email: reference?.email || '',
+    phone: reference?.phone || '',
+    linkedinProfile: reference?.linkedinProfile || '',
+    relationship: reference?.relationship || 'manager' as const,
+    isAuthorized: reference?.isAuthorized ?? true
+  });
+
+  const relationshipOptions = [
+    { value: 'manager', label: 'Manager' },
+    { value: 'colleague', label: 'Colleague' },
+    { value: 'client', label: 'Client' },
+    { value: 'mentor', label: 'Mentor' },
+    { value: 'supervisor', label: 'Supervisor' },
+    { value: 'other', label: 'Other' }
+  ];
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold text-gray-900">
+              {reference ? 'Edit Reference' : 'Add Reference'}
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Basic Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+              <input
+                type="text"
+                value={formData.fullName}
+                onChange={(e) => handleInputChange('fullName', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+                placeholder="e.g., John Doe"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Designation / Job Title *</label>
+              <input
+                type="text"
+                value={formData.designation}
+                onChange={(e) => handleInputChange('designation', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+                placeholder="e.g., HR Manager"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Organization / Company *</label>
+            <input
+              type="text"
+              value={formData.organization}
+              onChange={(e) => handleInputChange('organization', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+              placeholder="e.g., ABC Ltd."
+              required
+            />
+          </div>
+
+          {/* Contact Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+                placeholder="john.doe@company.com"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+                placeholder="+1-555-123-4567"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn Profile</label>
+            <input
+              type="url"
+              value={formData.linkedinProfile}
+              onChange={(e) => handleInputChange('linkedinProfile', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+              placeholder="https://www.linkedin.com/in/johndoe/"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Relationship *</label>
+            <select
+              value={formData.relationship}
+              onChange={(e) => handleInputChange('relationship', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+              required
+            >
+              <option value="">Select Relationship</option>
+              {relationshipOptions.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Authorization */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={formData.isAuthorized}
+                onChange={(e) => handleInputChange('isAuthorized', e.target.checked)}
+                className="mt-1 text-[#114373] focus:ring-[#114373]"
+              />
+              <div>
+                <p className="text-sm font-medium text-blue-900">
+                  Authorization for Verification Contact
+                </p>
+                <p className="text-sm text-blue-700 mt-1">
+                  By providing this contact, you authorize us to reach out for verification of your professional background and skills.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 5-Star Rating Info */}
+          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Star className="w-5 h-5 text-yellow-600" />
+              <h4 className="font-medium text-yellow-800">5-Star Profile Rating</h4>
+            </div>
+            <p className="text-sm text-yellow-700">
+              Once your references are verified, your profile will receive a 5-Star rating on our portal, 
+              making you more attractive to potential employers.
+            </p>
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559]"
+            >
+              {reference ? 'Update Reference' : 'Add Reference'}
             </button>
           </div>
         </form>
