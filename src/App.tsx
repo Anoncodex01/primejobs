@@ -24,6 +24,7 @@ import JobView from './pages/JobView';
 import Companies from './pages/Companies';
 import CompanyView from './pages/CompanyProfile';
 import JobSearch from './pages/JobSearch';
+import CandidateJobSearch from './pages/candidate/JobSearch';
 import JobCategoriesPage from './pages/JobCategories';
 import CareerHub from './pages/CareerHub';
 
@@ -307,6 +308,7 @@ function App() {
           <Route path="/candidate/application-form" element={<CandidateLayout><CandidateApplicationForm /></CandidateLayout>} />
           <Route path="/candidate/profile" element={<CandidateLayout><CandidateProfile /></CandidateLayout>} />
           <Route path="/candidate/settings" element={<CandidateLayout><CandidateSettings /></CandidateLayout>} />
+          <Route path="/candidate/job-search" element={<CandidateLayout><CandidateJobSearch /></CandidateLayout>} />
 
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />

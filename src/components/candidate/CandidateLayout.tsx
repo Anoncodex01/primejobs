@@ -48,9 +48,9 @@ const CandidateLayout: FC<CandidateLayoutProps> = ({ children }) => {
     },
     {
       name: 'Job Search',
-      href: '/job-search',
+      href: '/candidate/job-search',
       icon: <Search className="w-5 h-5" />,
-      current: location.pathname === '/job-search'
+      current: location.pathname === '/candidate/job-search'
     },
     {
       name: 'AI CV Builder',
@@ -64,12 +64,13 @@ const CandidateLayout: FC<CandidateLayoutProps> = ({ children }) => {
       icon: <Star className="w-5 h-5" />,
       current: location.pathname === '/candidate/saved-jobs'
     },
-    {
-      name: 'Profile',
-      href: '/candidate/profile',
-      icon: <User className="w-5 h-5" />,
-      current: location.pathname === '/candidate/profile'
-    },
+            {
+          name: 'Profile',
+          href: '/candidate/profile',
+          icon: <User className="w-5 h-5" />,
+          current: location.pathname === '/candidate/profile'
+        },
+
     {
       name: 'Settings',
       href: '/candidate/settings',
