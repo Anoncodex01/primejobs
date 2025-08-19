@@ -74,6 +74,7 @@ import AdminSettings from './pages/admin/Settings';
 import AdminJobRequirements from './pages/admin/JobRequirements';
 import AdminInterviewEvaluation from './pages/admin/InterviewEvaluation';
 import CandidateSearch from './pages/admin/CandidateSearch';
+import EmployerCandidateSearch from './pages/employer/CandidateSearch';
 
 // ScrollToTop component to handle scroll position on route changes
 function ScrollToTop() {
@@ -293,6 +294,7 @@ function App() {
           <Route path="/employer/enhanced-job-posting" element={<EmployerLayout><EnhancedJobPosting /></EmployerLayout>} />
           <Route path="/employer/placements" element={<EmployerLayout><Placements /></EmployerLayout>} />
           <Route path="/employer/analytics" element={<EmployerLayout><Analytics /></EmployerLayout>} />
+          <Route path="/employer/candidate-search" element={<EmployerLayout><EmployerCandidateSearch /></EmployerLayout>} />
           <Route path="/employer/settings" element={<EmployerLayout><Settings /></EmployerLayout>} />
 
           {/* Candidate Routes */}

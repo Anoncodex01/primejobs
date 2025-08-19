@@ -16,7 +16,8 @@ import {
   Bell,
   Shield,
   DollarSign,
-  AlertCircle
+  AlertCircle,
+  Search
 } from 'lucide-react';
 
 interface EmployerLayoutProps {
@@ -66,6 +67,12 @@ const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
       href: '/employer/applications',
       icon: <Users className="w-5 h-5" />,
       current: location.pathname === '/employer/applications'
+    },
+    {
+      name: 'Candidate Search',
+      href: '/employer/candidate-search',
+      icon: <Search className="w-5 h-5" />,
+      current: location.pathname === '/employer/candidate-search'
     },
     {
       name: 'Interviews',
