@@ -23,13 +23,71 @@ import {
   Lock,
   Shield,
   CheckCircle,
-  ChevronRight
+  ChevronRight,
+  Download,
+  Trash2,
+  Globe,
+  Moon,
+  Sun,
+  Languages,
+  Palette,
+  Volume2,
+  VolumeX,
+  Smartphone,
+  Monitor,
+  Database,
+  Key,
+  AlertTriangle,
+  Info,
+  HelpCircle,
+  ExternalLink,
+  Calendar,
+  Filter,
+  Search,
+  Bookmark,
+  Share2,
+  Copy,
+  Edit3,
+  Plus,
+  Minus,
+  Zap,
+  Target,
+  TrendingUp,
+  BarChart3,
+  PieChart,
+  Activity,
+  Users,
+  MessageSquare,
+  Mail as MailIcon,
+  Phone as PhoneIcon,
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  RotateCcw,
+  Archive,
+  Inbox,
+  Send,
+  Tag,
+  Hash,
+  Hash as HashIcon,
+  Hash as HashIcon2,
+  Hash as HashIcon3,
+  Hash as HashIcon4,
+  Hash as HashIcon5,
+  Hash as HashIcon6,
+  Hash as HashIcon7,
+  Hash as HashIcon8,
+  Hash as HashIcon9,
+  Hash as HashIcon10
 } from 'lucide-react';
 
 const CandidateSettings: FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState('notifications');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Form states
   const [formData, setFormData] = useState({
@@ -49,6 +107,48 @@ const CandidateSettings: FC = () => {
     location: 'San Francisco, CA',
     preferredLocations: ['San Francisco, CA', 'New York, NY', 'Remote'],
     bio: 'Experienced software engineer with 5+ years in full-stack development...'
+  });
+
+  // Additional settings states
+  const [settings, setSettings] = useState({
+    // Appearance
+    theme: 'light',
+    language: 'en',
+    fontSize: 'medium',
+    
+    // Notifications
+    emailNotifications: true,
+    smsNotifications: false,
+    pushNotifications: true,
+    jobAlerts: true,
+    applicationUpdates: true,
+    interviewReminders: true,
+    weeklyDigest: false,
+    
+    // Privacy
+    profileVisibility: 'public',
+    showSalary: false,
+    showContactInfo: true,
+    allowEmployerContact: true,
+    showOnlineStatus: true,
+    
+    // Job Preferences
+    jobSearchStatus: 'active',
+    remoteWorkPreference: 'hybrid',
+    travelWillingness: 'limited',
+    relocationWillingness: 'open',
+    contractWork: false,
+    
+    // Account
+    twoFactorAuth: false,
+    autoLogout: 30,
+    dataRetention: '2years',
+    
+    // Advanced
+    autoSave: true,
+    spellCheck: true,
+    accessibility: false,
+    analytics: true
   });
 
   const industries = [
@@ -139,6 +239,38 @@ const CandidateSettings: FC = () => {
     }));
   };
 
+  const handleSettingChange = (field: string, value: any) => {
+    setSettings(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleExportData = () => {
+    const data = {
+      profile: formData,
+      settings: settings,
+      applications: [], // Would include actual application data
+      savedJobs: [], // Would include actual saved jobs
+      exportDate: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `candidate-data-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowExportModal(false);
+  };
+
+  const handleDeleteAccount = () => {
+    // In a real app, this would make an API call
+    console.log('Account deletion requested');
+    setShowDeleteModal(false);
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -152,391 +284,615 @@ const CandidateSettings: FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-          <p className="text-gray-600">Manage your personal and professional information</p>
+          <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+          <p className="text-gray-600">Manage your account, preferences, and privacy</p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] transition-colors"
-          >
-            {isEditing ? 'Cancel' : 'Edit Profile'}
-          </button>
-          {isEditing && (
-            <button className="px-4 py-2 bg-[#4ebf9e] text-white rounded-lg hover:bg-[#3da88a] transition-colors">
-              <Save className="w-4 h-4 mr-2" />
-              Save Changes
-            </button>
-          )}
+          {/* Header actions can be added here if needed */}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Profile Form */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Personal Information</h2>
+      {/* Settings Tabs */}
+      <div className="mb-6">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            {[
+              { id: 'notifications', name: 'Notifications', icon: Bell },
+              { id: 'privacy', name: 'Privacy & Security', icon: Shield },
+              { id: 'preferences', name: 'Preferences', icon: Settings },
+              { id: 'account', name: 'Account', icon: Key }
+            ].map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                    activeTab === tab.id
+                      ? 'border-[#114373] text-[#114373]'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.name}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
+
+            <>
+
+      {/* Notifications Tab */}
+      {activeTab === 'notifications' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Notification Preferences</h2>
+                <p className="text-sm text-gray-600 mt-1">Choose how and when you want to be notified</p>
+              </div>
+              <div className="p-6 space-y-6">
+                {/* Email Notifications */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Email Notifications</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Job Alerts</p>
+                        <p className="text-xs text-gray-600">Get notified about new job opportunities</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.jobAlerts}
+                          onChange={(e) => handleSettingChange('jobAlerts', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Application Updates</p>
+                        <p className="text-xs text-gray-600">Status changes for your applications</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.applicationUpdates}
+                          onChange={(e) => handleSettingChange('applicationUpdates', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Interview Reminders</p>
+                        <p className="text-xs text-gray-600">Reminders for upcoming interviews</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.interviewReminders}
+                          onChange={(e) => handleSettingChange('interviewReminders', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Weekly Digest</p>
+                        <p className="text-xs text-gray-600">Summary of your job search activity</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.weeklyDigest}
+                          onChange={(e) => handleSettingChange('weeklyDigest', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SMS Notifications */}
+                <div className="pt-6 border-t border-gray-200">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">SMS Notifications</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Urgent Updates</p>
+                        <p className="text-xs text-gray-600">Critical application status changes</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.smsNotifications}
+                          onChange={(e) => handleSettingChange('smsNotifications', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Push Notifications */}
+                <div className="pt-6 border-t border-gray-200">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Push Notifications</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Browser Notifications</p>
+                        <p className="text-xs text-gray-600">Receive notifications in your browser</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.pushNotifications}
+                          onChange={(e) => handleSettingChange('pushNotifications', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Personal Information */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                      <input
-                        type="text"
-                        value={formData.firstName}
-                        onChange={(e) => handleInputChange('firstName', e.target.value)}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                      <input
-                        type="text"
-                        value={formData.lastName}
-                        onChange={(e) => handleInputChange('lastName', e.target.value)}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                      />
-                    </div>
-                  </div>
+          </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Current Employer</label>
-                    <input
-                      type="text"
-                      value={formData.currentEmployer}
-                      onChange={(e) => handleInputChange('currentEmployer', e.target.value)}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
-                    <select
-                      value={formData.industry}
-                      onChange={(e) => handleInputChange('industry', e.target.value)}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                    >
-                      {industries.map(industry => (
-                        <option key={industry} value={industry}>{industry}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Professional Information */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Professional Information</h3>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Education</label>
-                    <select
-                      value={formData.education}
-                      onChange={(e) => handleInputChange('education', e.target.value)}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                    >
-                      {educationLevels.map(level => (
-                        <option key={level} value={level}>{level}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Years of Experience</label>
-                    <input
-                      type="number"
-                      value={formData.experience}
-                      onChange={(e) => handleInputChange('experience', parseInt(e.target.value))}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Current Salary</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                        <input
-                          type="number"
-                          value={formData.currentSalary}
-                          onChange={(e) => handleInputChange('currentSalary', parseInt(e.target.value))}
-                          disabled={!isEditing}
-                          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Expected Salary</label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                        <input
-                          type="number"
-                          value={formData.expectedSalary}
-                          onChange={(e) => handleInputChange('expectedSalary', parseInt(e.target.value))}
-                          disabled={!isEditing}
-                          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Current Location</label>
-                    <select
-                      value={formData.location}
-                      onChange={(e) => handleInputChange('location', e.target.value)}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                    >
-                      {locations.map(location => (
-                        <option key={location} value={location}>{location}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Notification Summary</h3>
               </div>
-
-              {/* Skills Section */}
-              <div className="mt-8">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Skills</h3>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {formData.skills.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-[#114373] text-white rounded-full text-sm flex items-center gap-2"
-                    >
-                      {skill}
-                      {isEditing && (
-                        <button
-                          onClick={() => handleSkillRemove(skill)}
-                          className="text-white hover:text-red-200"
-                        >
-                          <XCircle className="w-4 h-4" />
-                        </button>
-                      )}
-                    </span>
-                  ))}
+              <div className="p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-green-500" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Email</p>
+                    <p className="text-xs text-gray-600">3 notifications enabled</p>
+                  </div>
                 </div>
-                {isEditing && (
-                  <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                    {commonSkills.filter(skill => !formData.skills.includes(skill)).map(skill => (
-                      <button
-                        key={skill}
-                        onClick={() => handleSkillAdd(skill)}
-                        className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50"
-                      >
-                        + {skill}
-                      </button>
-                    ))}
+                <div className="flex items-center gap-3">
+                  <Smartphone className="w-5 h-5 text-gray-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">SMS</p>
+                    <p className="text-xs text-gray-600">1 notification enabled</p>
                   </div>
-                )}
-              </div>
-
-              {/* Preferred Locations */}
-              <div className="mt-8">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Preferred Locations</h3>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {formData.preferredLocations.map((location, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-[#4ebf9e] text-white rounded-full text-sm flex items-center gap-2"
-                    >
-                      <MapPin className="w-4 h-4" />
-                      {location}
-                      {isEditing && (
-                        <button
-                          onClick={() => handleLocationRemove(location)}
-                          className="text-white hover:text-red-200"
-                        >
-                          <XCircle className="w-4 h-4" />
-                        </button>
-                      )}
-                    </span>
-                  ))}
                 </div>
-                {isEditing && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {locations.filter(location => !formData.preferredLocations.includes(location)).map(location => (
-                      <button
-                        key={location}
-                        onClick={() => handleLocationAdd(location)}
-                        className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50"
-                      >
-                        + {location}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Documents Section */}
-              <div className="mt-8">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Documents</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Photo Upload */}
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h4 className="text-lg font-medium text-gray-900 mb-2">Profile Photo</h4>
-                    <p className="text-sm text-gray-600 mb-4">Upload a passport-size photograph</p>
-                    <button className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] transition-colors">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Photo
-                    </button>
-                  </div>
-
-                  {/* CV Upload */}
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h4 className="text-lg font-medium text-gray-900 mb-2">Resume/CV</h4>
-                    <p className="text-sm text-gray-600 mb-4">Upload your latest resume or CV</p>
-                    <button className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] transition-colors">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload CV
-                    </button>
+                <div className="flex items-center gap-3">
+                  <Bell className="w-5 h-5 text-green-500" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Push</p>
+                    <p className="text-xs text-gray-600">1 notification enabled</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Profile Completion */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Profile Completion</h3>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Personal Info</span>
-                <CheckCircle className="w-5 h-5 text-green-500" />
+      {/* Privacy & Security Tab */}
+      {activeTab === 'privacy' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Privacy & Security</h2>
+                <p className="text-sm text-gray-600 mt-1">Control your privacy and security settings</p>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Professional Info</span>
-                <CheckCircle className="w-5 h-5 text-green-500" />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Skills</span>
-                <CheckCircle className="w-5 h-5 text-green-500" />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Documents</span>
-                <div className="w-5 h-5 border-2 border-gray-300 rounded-full"></div>
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-900">Overall Progress</span>
-                <span className="text-sm font-medium text-[#114373]">75%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-[#114373] h-2 rounded-full" style={{ width: '75%' }}></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Privacy Settings */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Privacy Settings</h3>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="p-6 space-y-6">
+                {/* Profile Visibility */}
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Profile Visibility</p>
-                  <p className="text-xs text-gray-600">Who can see your profile</p>
-                </div>
-                <select className="text-sm border border-gray-300 rounded px-2 py-1">
-                  <option>Public</option>
-                  <option>Private</option>
-                  <option>Employers Only</option>
-                </select>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Email Notifications</p>
-                  <p className="text-xs text-gray-600">Job alerts and updates</p>
-                </div>
-                <button className="w-10 h-6 bg-[#114373] rounded-full relative">
-                  <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1"></div>
-                </button>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">SMS Notifications</p>
-                  <p className="text-xs text-gray-600">Text message alerts</p>
-                </div>
-                <button className="w-10 h-6 bg-gray-300 rounded-full relative">
-                  <div className="w-4 h-4 bg-white rounded-full absolute top-1 left-1"></div>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Account Security */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Account Security</h3>
-            </div>
-            <div className="p-6 space-y-4">
-              <button className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-                <div className="flex items-center gap-3">
-                  <Lock className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Change Password</p>
-                    <p className="text-xs text-gray-600">Update your password</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Profile Visibility</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Who can see your profile</label>
+                      <select
+                        value={settings.profileVisibility}
+                        onChange={(e) => handleSettingChange('profileVisibility', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                      >
+                        <option value="public">Public - Anyone can view</option>
+                        <option value="employers">Employers Only</option>
+                        <option value="private">Private - Only you</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Show Salary Information</p>
+                        <p className="text-xs text-gray-600">Display your salary expectations to employers</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.showSalary}
+                          onChange={(e) => handleSettingChange('showSalary', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Show Contact Information</p>
+                        <p className="text-xs text-gray-600">Display your email and phone to employers</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.showContactInfo}
+                          onChange={(e) => handleSettingChange('showContactInfo', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Allow Employer Contact</p>
+                        <p className="text-xs text-gray-600">Let employers contact you directly</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.allowEmployerContact}
+                          onChange={(e) => handleSettingChange('allowEmployerContact', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              </button>
-              <button className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+
+                {/* Security Settings */}
+                <div className="pt-6 border-t border-gray-200">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Security</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Two-Factor Authentication</p>
+                        <p className="text-xs text-gray-600">Add an extra layer of security</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.twoFactorAuth}
+                          onChange={(e) => handleSettingChange('twoFactorAuth', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Auto Logout (minutes)</label>
+                      <select
+                        value={settings.autoLogout}
+                        onChange={(e) => handleSettingChange('autoLogout', parseInt(e.target.value))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                      >
+                        <option value={15}>15 minutes</option>
+                        <option value={30}>30 minutes</option>
+                        <option value={60}>1 hour</option>
+                        <option value={120}>2 hours</option>
+                        <option value={0}>Never</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Security Status</h3>
+              </div>
+              <div className="p-6 space-y-4">
                 <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-gray-400" />
+                  <Shield className="w-5 h-5 text-green-500" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Account Security</p>
+                    <p className="text-xs text-gray-600">Good</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Lock className="w-5 h-5 text-yellow-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Two-Factor Auth</p>
-                    <p className="text-xs text-gray-600">Add extra security</p>
+                    <p className="text-xs text-gray-600">Not enabled</p>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
+                <div className="flex items-center gap-3">
+                  <Activity className="w-5 h-5 text-green-500" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Last Login</p>
+                    <p className="text-xs text-gray-600">2 hours ago</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preferences Tab */}
+      {activeTab === 'preferences' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Preferences</h2>
+                <p className="text-sm text-gray-600 mt-1">Customize your experience</p>
+              </div>
+              <div className="p-6 space-y-6">
+                {/* Appearance */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Appearance</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Theme</label>
+                      <select
+                        value={settings.theme}
+                        onChange={(e) => handleSettingChange('theme', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                      >
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="auto">Auto (System)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                      <select
+                        value={settings.language}
+                        onChange={(e) => handleSettingChange('language', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                      >
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="zh">Chinese</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Font Size</label>
+                      <select
+                        value={settings.fontSize}
+                        onChange={(e) => handleSettingChange('fontSize', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                      >
+                        <option value="small">Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="large">Large</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Job Preferences */}
+                <div className="pt-6 border-t border-gray-200">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Job Preferences</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Job Search Status</label>
+                      <select
+                        value={settings.jobSearchStatus}
+                        onChange={(e) => handleSettingChange('jobSearchStatus', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                      >
+                        <option value="active">Actively Looking</option>
+                        <option value="passive">Passively Looking</option>
+                        <option value="not-looking">Not Looking</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Remote Work Preference</label>
+                      <select
+                        value={settings.remoteWorkPreference}
+                        onChange={(e) => handleSettingChange('remoteWorkPreference', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                      >
+                        <option value="remote">Remote Only</option>
+                        <option value="hybrid">Hybrid</option>
+                        <option value="onsite">On-site Only</option>
+                        <option value="flexible">Flexible</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Contract Work</p>
+                        <p className="text-xs text-gray-600">Open to contract opportunities</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={settings.contractWork}
+                          onChange={(e) => handleSettingChange('contractWork', e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#114373]"></div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+              </div>
+              <div className="p-6 space-y-4">
+                <button className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <RefreshCw className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-700">Reset to Defaults</span>
+                </button>
+                <button className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <Download className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-700">Export Settings</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Account Tab */}
+      {activeTab === 'account' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Account Management</h2>
+                <p className="text-sm text-gray-600 mt-1">Manage your account settings and data</p>
+              </div>
+              <div className="p-6 space-y-6">
+                {/* Data Export */}
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Data Export</h3>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Export Your Data</p>
+                        <p className="text-xs text-gray-600">Download all your profile data, applications, and settings</p>
+                      </div>
+                      <button
+                        onClick={() => setShowExportModal(true)}
+                        className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] transition-colors"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Export Data
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Account Deletion */}
+                <div className="pt-6 border-t border-gray-200">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Account Deletion</h3>
+                  <div className="bg-red-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-red-900">Delete Account</p>
+                        <p className="text-xs text-red-700">This action cannot be undone. All your data will be permanently deleted.</p>
+                      </div>
+                      <button
+                        onClick={() => setShowDeleteModal(true)}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete Account
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Account Info</h3>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5 text-gray-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Member Since</p>
+                    <p className="text-xs text-gray-600">January 2024</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Activity className="w-5 h-5 text-gray-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Last Active</p>
+                    <p className="text-xs text-gray-600">2 hours ago</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Database className="w-5 h-5 text-gray-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Data Usage</p>
+                    <p className="text-xs text-gray-600">2.3 MB</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Export Data</h3>
+            <p className="text-sm text-gray-600 mb-6">Your data will be exported as a JSON file containing your profile, applications, and settings.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowExportModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleExportData}
+                className="flex-1 px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559]"
+              >
+                Export
               </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertTriangle className="w-6 h-6 text-red-500" />
+              <h3 className="text-lg font-semibold text-gray-900">Delete Account</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-6">Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      </>
     </div>
   );
 };

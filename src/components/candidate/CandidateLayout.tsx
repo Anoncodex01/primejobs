@@ -65,7 +65,13 @@ const CandidateLayout: FC<CandidateLayoutProps> = ({ children }) => {
       current: location.pathname === '/candidate/saved-jobs'
     },
     {
-      name: 'Profile Settings',
+      name: 'Profile',
+      href: '/candidate/profile',
+      icon: <User className="w-5 h-5" />,
+      current: location.pathname === '/candidate/profile'
+    },
+    {
+      name: 'Settings',
       href: '/candidate/settings',
       icon: <Settings className="w-5 h-5" />,
       current: location.pathname === '/candidate/settings'

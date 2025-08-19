@@ -199,6 +199,12 @@ const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
       current: location.pathname === '/admin/candidates'
     },
     {
+      name: 'Candidate Search',
+      href: '/admin/candidate-search',
+      icon: <Search className="w-5 h-5" />,
+      current: location.pathname === '/admin/candidate-search'
+    },
+    {
       name: 'Employers',
       href: '/admin/employers',
       icon: <Building2 className="w-5 h-5" />,
