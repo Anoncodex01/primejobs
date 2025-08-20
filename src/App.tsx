@@ -76,6 +76,7 @@ import AdminJobRequirements from './pages/admin/JobRequirements';
 import AdminInterviewEvaluation from './pages/admin/InterviewEvaluation';
 import CandidateSearch from './pages/admin/CandidateSearch';
 import EmployerCandidateSearch from './pages/employer/CandidateSearch';
+import ApplicationWorkflow from './pages/admin/ApplicationWorkflow';
 
 // ScrollToTop component to handle scroll position on route changes
 function ScrollToTop() {
@@ -315,6 +316,7 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
           <Route path="/admin/candidates" element={<AdminLayout><AdminCandidates /></AdminLayout>} />
           <Route path="/admin/candidate-search" element={<AdminLayout><CandidateSearch /></AdminLayout>} />
+          <Route path="/admin/application-workflow" element={<AdminLayout><ApplicationWorkflow /></AdminLayout>} />
           <Route path="/admin/employers" element={<AdminLayout><AdminEmployers /></AdminLayout>} />
           <Route path="/admin/job-requirements" element={<AdminLayout><AdminJobRequirements /></AdminLayout>} />
           <Route path="/admin/interview-evaluation" element={<AdminLayout><AdminInterviewEvaluation /></AdminLayout>} />

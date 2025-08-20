@@ -150,4 +150,73 @@ export interface DashboardActivity {
   description: string;
   timestamp: Date;
   relatedId?: string;
+}
+
+export interface InterviewEvaluation {
+  id: string;
+  candidateId: string;
+  jobId: string;
+  interviewerName: string;
+  interviewDate: string;
+  interviewMode: 'online' | 'physical';
+
+  // Ratings (1-5 scale)
+  technicalSkills: number;
+  communication: number;
+  culturalFit: number;
+  overallRating: number;
+
+  // Comments
+  strengths: string;
+  weaknesses: string;
+  comments: string;
+
+  // Final recommendation
+  recommendation: 'rejected' | 'can_be_considered' | 'recommended' | 'strongly_recommended';
+
+  // Metadata
+  evaluatedBy: string;
+  evaluatedAt: string;
+  isSubmittedToClient: boolean;
+}
+
+export interface InterviewDetails {
+  id: string;
+  candidateId: string;
+  jobId: string;
+  interviewDate: string;
+  interviewTime: string;
+  interviewerNames: string[];
+  interviewMode: 'online' | 'physical';
+  meetingLink?: string;
+  location?: string;
+  status: 'scheduled' | 'completed' | 'no_show';
+  notes?: string;
+  scheduledBy: string;
+  scheduledAt: string;
+}
+
+export interface ApplicationStage {
+  id: string;
+  candidateId: string;
+  jobId: string;
+  stage: 'applications_received' | 'shortlisted' | 'interview_scheduled' | 'interviewed' | 'no_show' | 'submitted_to_client' | 'rejected' | 'saved_for_future';
+  status: 'active' | 'completed';
+  movedBy: string;
+  movedAt: string;
+  notes?: string;
+  source: 'direct_application' | 'database_search' | 'talent_pool';
+}
+
+export interface ApplicationWorkflow {
+  id: string;
+  jobId: string;
+  candidateId: string;
+  currentStage: ApplicationStage['stage'];
+  stages: ApplicationStage[];
+  interviewDetails?: InterviewDetails;
+  interviewEvaluation?: InterviewEvaluation;
+  isLiked: boolean;
+  createdAt: string;
+  updatedAt: string;
 } 
