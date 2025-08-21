@@ -1,6 +1,15 @@
 import { FC, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProfileCompletion from '../../components/candidate/ProfileCompletion';
+import { nationalities, getAllJobTitles, getJobCategories, getJobTitlesByCategory } from '../../utils/jobData';
+import { 
+  getAllCountries, 
+  getRegionsByCountry, 
+  getCitiesByRegion, 
+  getAllCities,
+  formatLocation,
+  searchLocations 
+} from '../../utils/globalData';
 import {
   User,
   Mail,
@@ -479,7 +488,13 @@ const CandidateProfile: FC = () => {
     }
   });
 
-  const [newPreferredLocation, setNewPreferredLocation] = useState('');
+  // Location selection state - initialized after profile
+  const [selectedCountry, setSelectedCountry] = useState(profile.currentLocation.country || 'Tanzania');
+  const [selectedRegion, setSelectedRegion] = useState(profile.currentLocation.state || '');
+  const [selectedCity, setSelectedCity] = useState(profile.currentLocation.city || '');
+  const [locationSearchQuery, setLocationSearchQuery] = useState('');
+
+
 
   const genderOptions = [
     { value: 'male', label: 'Male' },
@@ -541,12 +556,12 @@ const CandidateProfile: FC = () => {
   };
 
   const addPreferredLocation = () => {
-    if (newPreferredLocation && !profile.preferredLocations.includes(newPreferredLocation)) {
+    if (locationSearchQuery && !profile.preferredLocations.includes(locationSearchQuery)) {
       setProfile(prev => ({
         ...prev,
-        preferredLocations: [...prev.preferredLocations, newPreferredLocation]
+        preferredLocations: [...prev.preferredLocations, locationSearchQuery]
       }));
-      setNewPreferredLocation('');
+      setLocationSearchQuery('');
     }
   };
 
@@ -831,8 +846,8 @@ const CandidateProfile: FC = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
                     >
                       <option value="">Select Nationality</option>
-                      {countries.map(country => (
-                        <option key={country} value={country}>{country}</option>
+                      {nationalities.map(nationality => (
+                        <option key={nationality} value={nationality}>{nationality}</option>
                       ))}
                     </select>
                   </div>
@@ -885,34 +900,57 @@ const CandidateProfile: FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Current Location</label>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <input
-                        type="text"
-                        value={profile.currentLocation.city}
-                        onChange={(e) => handleLocationChange('city', e.target.value)}
-                        disabled={!isEditing}
-                        placeholder="City"
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                      />
+                      {/* Country Dropdown */}
                       <select
-                        value={profile.currentLocation.state}
-                        onChange={(e) => handleLocationChange('state', e.target.value)}
+                        value={selectedCountry}
+                        onChange={(e) => {
+                          setSelectedCountry(e.target.value);
+                          setSelectedRegion('');
+                          setSelectedCity('');
+                          handleLocationChange('country', e.target.value);
+                          handleLocationChange('state', '');
+                          handleLocationChange('city', '');
+                        }}
                         disabled={!isEditing}
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                      >
-                        <option value="">Select State</option>
-                        {states.map(state => (
-                          <option key={state} value={state}>{state}</option>
-                        ))}
-                      </select>
-                      <select
-                        value={profile.currentLocation.country}
-                        onChange={(e) => handleLocationChange('country', e.target.value)}
-                        disabled={!isEditing}
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
                       >
                         <option value="">Select Country</option>
-                        {countries.map(country => (
+                        {getAllCountries().map(country => (
                           <option key={country} value={country}>{country}</option>
+                        ))}
+                      </select>
+
+                      {/* Region/State Dropdown */}
+                      <select
+                        value={selectedRegion}
+                        onChange={(e) => {
+                          setSelectedRegion(e.target.value);
+                          setSelectedCity('');
+                          handleLocationChange('state', e.target.value);
+                          handleLocationChange('city', '');
+                        }}
+                        disabled={!isEditing || !selectedCountry}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
+                      >
+                        <option value="">Select Region/State</option>
+                        {selectedCountry && getRegionsByCountry(selectedCountry).map(region => (
+                          <option key={region} value={region}>{region}</option>
+                        ))}
+                      </select>
+
+                      {/* City Dropdown */}
+                      <select
+                        value={selectedCity}
+                        onChange={(e) => {
+                          setSelectedCity(e.target.value);
+                          handleLocationChange('city', e.target.value);
+                        }}
+                        disabled={!isEditing || !selectedRegion}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
+                      >
+                        <option value="">Select City</option>
+                        {selectedRegion && getCitiesByRegion(selectedCountry, selectedRegion).map(city => (
+                          <option key={city} value={city}>{city}</option>
                         ))}
                       </select>
                     </div>
@@ -924,21 +962,49 @@ const CandidateProfile: FC = () => {
                       <div className="flex gap-2">
                         <input
                           type="text"
-                          value={newPreferredLocation}
-                          onChange={(e) => setNewPreferredLocation(e.target.value)}
-                          disabled={!isEditing}
-                          placeholder="Add preferred location"
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
+                          value={locationSearchQuery}
+                          onChange={(e) => setLocationSearchQuery(e.target.value)}
+                          placeholder="Search for locations..."
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
                         />
                         {isEditing && (
                           <button
-                            onClick={addPreferredLocation}
+                            onClick={() => {
+                              if (locationSearchQuery && !profile.preferredLocations.includes(locationSearchQuery)) {
+                                addPreferredLocation();
+                                setLocationSearchQuery('');
+                              }
+                            }}
                             className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559]"
                           >
                             Add
                           </button>
                         )}
                       </div>
+                      
+                      {/* Location Search Results */}
+                      {locationSearchQuery && (
+                        <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg">
+                          {searchLocations(locationSearchQuery).map((location, index) => (
+                            <div
+                              key={index}
+                              className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                              onClick={() => {
+                                if (!profile.preferredLocations.includes(location)) {
+                                  setProfile(prev => ({
+                                    ...prev,
+                                    preferredLocations: [...prev.preferredLocations, location]
+                                  }));
+                                }
+                                setLocationSearchQuery('');
+                              }}
+                            >
+                              {location}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
                       <div className="flex flex-wrap gap-2">
                         {profile.preferredLocations.map((location, index) => (
                           <span
@@ -1043,7 +1109,7 @@ const CandidateProfile: FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373] disabled:bg-gray-50"
                 >
                   <option value="">Select Country</option>
-                  {countries.map(country => (
+                  {getAllCountries().map(country => (
                     <option key={country} value={country}>{country}</option>
                   ))}
                 </select>
@@ -1836,14 +1902,18 @@ const EmploymentModal: FC<EmploymentModalProps> = ({ isOpen, onClose, employment
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Designation *</label>
-              <input
-                type="text"
+              <label className="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
+              <select
                 value={formData.designation}
                 onChange={(e) => handleInputChange('designation', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
                 required
-              />
+              >
+                <option value="">Select Job Title</option>
+                {getAllJobTitles().map(jobTitle => (
+                  <option key={jobTitle} value={jobTitle}>{jobTitle}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -2043,14 +2113,17 @@ const ReferenceModal: FC<ReferenceModalProps> = ({ reference, onSave, onClose })
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Designation / Job Title *</label>
-              <input
-                type="text"
+              <select
                 value={formData.designation}
                 onChange={(e) => handleInputChange('designation', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
-                placeholder="e.g., HR Manager"
                 required
-              />
+              >
+                <option value="">Select Job Title</option>
+                {getAllJobTitles().map(jobTitle => (
+                  <option key={jobTitle} value={jobTitle}>{jobTitle}</option>
+                ))}
+              </select>
             </div>
           </div>
 
