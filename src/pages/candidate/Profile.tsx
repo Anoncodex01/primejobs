@@ -10,6 +10,11 @@ import {
   formatLocation,
   searchLocations 
 } from '../../utils/globalData';
+import { 
+  getAllLanguages, 
+  getLanguageProficiencyLevels, 
+  searchLanguages 
+} from '../../utils/languageData';
 import {
   User,
   Mail,
@@ -107,7 +112,7 @@ interface ITSkill {
 interface Language {
   id: string;
   name: string;
-  proficiency: 'beginner' | 'intermediate' | 'expert';
+  proficiency: 'Native / Bilingual Proficiency' | 'Full Professional Proficiency' | 'Professional Working Proficiency' | 'Limited Working Proficiency' | 'Elementary Proficiency';
 }
 
 interface Accomplishment {
@@ -396,12 +401,17 @@ const CandidateProfile: FC = () => {
       {
         id: '1',
         name: 'English',
-        proficiency: 'expert'
+        proficiency: 'Native / Bilingual Proficiency'
       },
       {
         id: '2',
-        name: 'Spanish',
-        proficiency: 'intermediate'
+        name: 'Swahili',
+        proficiency: 'Full Professional Proficiency'
+      },
+      {
+        id: '3',
+        name: 'French',
+        proficiency: 'Professional Working Proficiency'
       }
     ],
     accomplishments: [
@@ -493,6 +503,11 @@ const CandidateProfile: FC = () => {
   const [selectedRegion, setSelectedRegion] = useState(profile.currentLocation.state || '');
   const [selectedCity, setSelectedCity] = useState(profile.currentLocation.city || '');
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
+  
+  // Language management state
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [editingLanguage, setEditingLanguage] = useState<Language | null>(null);
+  const [languageSearchQuery, setLanguageSearchQuery] = useState('');
 
 
 
@@ -563,6 +578,46 @@ const CandidateProfile: FC = () => {
       }));
       setLocationSearchQuery('');
     }
+  };
+
+  // Language management functions
+  const handleAddLanguage = (languageData: Omit<Language, 'id'>) => {
+    const newLanguage: Language = {
+      ...languageData,
+      id: Date.now().toString()
+    };
+    
+    setProfile(prev => ({
+      ...prev,
+      languages: [...prev.languages, newLanguage]
+    }));
+    setShowLanguageModal(false);
+    setEditingLanguage(null);
+  };
+
+  const handleEditLanguage = (language: Language) => {
+    setEditingLanguage(language);
+    setShowLanguageModal(true);
+  };
+
+  const handleUpdateLanguage = (languageId: string, languageData: Omit<Language, 'id'>) => {
+    setProfile(prev => ({
+      ...prev,
+      languages: prev.languages.map(lang => 
+        lang.id === languageId 
+          ? { ...languageData, id: languageId }
+          : lang
+      )
+    }));
+    setShowLanguageModal(false);
+    setEditingLanguage(null);
+  };
+
+  const handleRemoveLanguage = (languageId: string) => {
+    setProfile(prev => ({
+      ...prev,
+      languages: prev.languages.filter(lang => lang.id !== languageId)
+    }));
   };
 
   const removePreferredLocation = (location: string) => {
@@ -1435,6 +1490,107 @@ const CandidateProfile: FC = () => {
             </div>
           </div>
 
+          {/* Skills Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Skills & Languages</h3>
+              {isEditing && (
+                <button
+                  onClick={() => setShowLanguageModal(true)}
+                  className="px-3 py-1 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] text-sm flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Language
+                </button>
+              )}
+            </div>
+            <div className="p-6 space-y-6">
+              {/* IT Skills */}
+              <div>
+                <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                  <Code className="w-5 h-5 text-[#114373]" />
+                  IT Skills
+                </h4>
+                {profile.itSkills.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {profile.itSkills.map((skill) => (
+                      <div key={skill.id} className="border border-gray-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <h5 className="font-medium text-gray-900">{skill.name}</h5>
+                          {isEditing && (
+                            <button className="text-red-600 hover:text-red-800 text-sm">
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between text-sm text-gray-600">
+                          <span>Proficiency: {skill.proficiency}</span>
+                          <span>{skill.yearsOfExperience} years</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Code className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No IT skills added yet.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Languages */}
+              <div>
+                <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-[#114373]" />
+                  Languages
+                </h4>
+                {profile.languages.length > 0 ? (
+                  <div className="space-y-3">
+                    {profile.languages.map((language) => (
+                      <div key={language.id} className="border border-gray-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-medium text-gray-900">{language.name}</h5>
+                            <p className="text-sm text-gray-600">{language.proficiency}</p>
+                          </div>
+                          {isEditing && (
+                            <div className="flex gap-2">
+                              <button 
+                                onClick={() => handleEditLanguage(language)}
+                                className="text-[#114373] hover:text-[#0d3559] text-sm"
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={() => handleRemoveLanguage(language.id)}
+                                className="text-red-600 hover:text-red-800 text-sm"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Globe className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No languages added yet.</p>
+                    {isEditing && (
+                      <button
+                        onClick={() => setShowLanguageModal(true)}
+                        className="mt-4 px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559]"
+                      >
+                        Add Your First Language
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Salary & Preferences */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="p-6 border-b border-gray-200">
@@ -1817,6 +1973,25 @@ const CandidateProfile: FC = () => {
             setShowProfileCompletion(false);
           }}
           onClose={() => setShowProfileCompletion(false)}
+        />
+      )}
+
+      {/* Language Modal */}
+      {showLanguageModal && (
+        <LanguageModal
+          isOpen={showLanguageModal}
+          onClose={() => {
+            setShowLanguageModal(false);
+            setEditingLanguage(null);
+          }}
+          language={editingLanguage}
+          onSave={(languageData) => {
+            if (editingLanguage) {
+              handleUpdateLanguage(editingLanguage.id, languageData);
+            } else {
+              handleAddLanguage(languageData);
+            }
+          }}
         />
       )}
     </div>
@@ -2236,6 +2411,154 @@ const ReferenceModal: FC<ReferenceModalProps> = ({ reference, onSave, onClose })
               className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559]"
             >
               {reference ? 'Update Reference' : 'Add Reference'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Language Modal Component
+const LanguageModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  language?: Language | null;
+  onSave: (languageData: Omit<Language, 'id'>) => void;
+}> = ({ isOpen, onClose, language, onSave }) => {
+  const [formData, setFormData] = useState({
+    name: language?.name || '',
+    proficiency: language?.proficiency || 'Elementary Proficiency' as LanguageProficiency
+  });
+
+  const [languageSearchQuery, setLanguageSearchQuery] = useState('');
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.name && formData.proficiency) {
+      onSave(formData);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {language ? 'Edit Language' : 'Add Language'}
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Language Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Language *</label>
+            <div className="relative">
+              <input
+                type="text"
+                value={languageSearchQuery}
+                onChange={(e) => setLanguageSearchQuery(e.target.value)}
+                placeholder="Search for a language..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+              />
+              
+              {/* Language Search Results */}
+              {languageSearchQuery && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                  {searchLanguages(languageSearchQuery).map((lang, index) => (
+                    <div
+                      key={index}
+                      className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, name: lang }));
+                        setLanguageSearchQuery('');
+                      }}
+                    >
+                      {lang}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Selected Language Display */}
+            {formData.name && (
+              <div className="mt-2 p-2 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-700">Selected: <span className="font-medium">{formData.name}</span></p>
+              </div>
+            )}
+          </div>
+
+          {/* Proficiency Level */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Proficiency Level *</label>
+            <select
+              value={formData.proficiency}
+              onChange={(e) => handleInputChange('proficiency', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+              required
+            >
+              <option value="">Select Proficiency Level</option>
+              {getLanguageProficiencyLevels().map(level => (
+                <option key={level} value={level}>{level}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Proficiency Level Descriptions */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-blue-900 mb-2">Proficiency Level Guide:</h4>
+            <div className="space-y-2 text-xs text-blue-800">
+              <div>
+                <strong>Native / Bilingual:</strong> Can speak, read, and write like a native speaker
+              </div>
+              <div>
+                <strong>Full Professional:</strong> Can conduct business and professional discussions fluently
+              </div>
+              <div>
+                <strong>Professional Working:</strong> Can handle work-related conversations and tasks
+              </div>
+              <div>
+                <strong>Limited Working:</strong> Can handle basic work situations and simple conversations
+              </div>
+              <div>
+                <strong>Elementary:</strong> Can understand and speak basic phrases and simple conversations
+              </div>
+            </div>
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={!formData.name || !formData.proficiency}
+              className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              {language ? 'Update Language' : 'Add Language'}
             </button>
           </div>
         </form>
