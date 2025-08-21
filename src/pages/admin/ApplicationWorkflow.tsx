@@ -3,7 +3,6 @@ import {
   Users,
   UserCheck,
   Calendar,
-  Clock,
   MapPin,
   Phone,
   Mail,
@@ -166,19 +165,29 @@ const ApplicationWorkflowPage: React.FC = () => {
     }
   };
 
-  const getStageIcon = (stage: string) => {
-    switch (stage) {
-      case 'applications_received': return <Users className="w-4 h-4" />;
-      case 'shortlisted': return <UserCheck className="w-4 h-4" />;
-      case 'interview_scheduled': return <Calendar className="w-4 h-4" />;
-      case 'interviewed': return <CheckCircle className="w-4 h-4" />;
-      case 'no_show': return <XCircle className="w-4 h-4" />;
-      case 'submitted_to_client': return <Send className="w-4 h-4" />;
-      case 'rejected': return <XCircle className="w-4 h-4" />;
-      case 'saved_for_future': return <Star className="w-4 h-4" />;
-      default: return <Users className="w-4 h-4" />;
-    }
-  };
+         const getStageIcon = (stage: string) => {
+         switch (stage) {
+           case 'applications_received': return <Users className="w-4 h-4" />;
+           case 'shortlisted': return <UserCheck className="w-4 h-4" />;
+           case 'interview_scheduled': return <Calendar className="w-4 h-4" />;
+           case 'interviewed': return <CheckCircle className="w-4 h-4" />;
+           case 'no_show': return <XCircle className="w-4 h-4" />;
+           case 'submitted_to_client': return <Send className="w-4 h-4" />;
+           case 'rejected': return <XCircle className="w-4 h-4" />;
+           case 'saved_for_future': return <Star className="w-4 h-4" />;
+           default: return <Users className="w-4 h-4" />;
+         }
+       };
+
+       const getRatingColor = (rating: string) => {
+         switch (rating) {
+           case 'above': return 'bg-green-100 text-green-800';
+           case 'satisfactory': return 'bg-blue-100 text-blue-800';
+           case 'below': return 'bg-yellow-100 text-yellow-800';
+           case 'unsatisfactory': return 'bg-red-100 text-red-800';
+           default: return 'bg-gray-100 text-gray-800';
+         }
+       };
 
   const moveToStage = (workflowId: string, newStage: ApplicationStage['stage']) => {
     setWorkflows(prev => prev.map(workflow => {
@@ -840,63 +849,33 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-gray-600">Technical Skills</p>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-4 h-4 ${
-                              star <= workflow.interviewEvaluation!.technicalSkills
-                                ? 'text-yellow-400 fill-current'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
+                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${getRatingColor(workflow.interviewEvaluation!.technicalSkills)}`}>
+                        {workflow.interviewEvaluation!.technicalSkills.charAt(0).toUpperCase() + workflow.interviewEvaluation!.technicalSkills.slice(1)}
+                      </span>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Communication</p>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-4 h-4 ${
-                              star <= workflow.interviewEvaluation!.communication
-                                ? 'text-yellow-400 fill-current'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
+                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${getRatingColor(workflow.interviewEvaluation!.communication)}`}>
+                        {workflow.interviewEvaluation!.communication.charAt(0).toUpperCase() + workflow.interviewEvaluation!.communication.slice(1)}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Leadership</p>
+                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${getRatingColor(workflow.interviewEvaluation!.leadership)}`}>
+                        {workflow.interviewEvaluation!.leadership.charAt(0).toUpperCase() + workflow.interviewEvaluation!.leadership.slice(1)}
+                      </span>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Cultural Fit</p>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-4 h-4 ${
-                              star <= workflow.interviewEvaluation!.culturalFit
-                                ? 'text-yellow-400 fill-current'
-                                : 'text-gray-300'
-                              }`}
-                          />
-                        ))}
-                      </div>
+                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${getRatingColor(workflow.interviewEvaluation!.culturalFit)}`}>
+                        {workflow.interviewEvaluation!.culturalFit.charAt(0).toUpperCase() + workflow.interviewEvaluation!.culturalFit.slice(1)}
+                      </span>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Overall Rating</p>
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-4 h-4 ${
-                              star <= workflow.interviewEvaluation!.overallRating
-                                ? 'text-yellow-400 fill-current'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
+                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${getRatingColor(workflow.interviewEvaluation!.overallRating)}`}>
+                        {workflow.interviewEvaluation!.overallRating.charAt(0).toUpperCase() + workflow.interviewEvaluation!.overallRating.slice(1)}
+                      </span>
                     </div>
                     <div className="md:col-span-2">
                       <p className="text-sm text-gray-600">Recommendation</p>

@@ -39,11 +39,12 @@ const InterviewEvaluationForm: React.FC<InterviewEvaluationFormProps> = ({
     interviewDate: interviewDate,
     interviewMode: 'online' as 'online' | 'physical',
     
-    // Ratings (1-5 scale)
-    technicalSkills: 0,
-    communication: 0,
-    culturalFit: 0,
-    overallRating: 0,
+    // Ratings (Above/Satisfactory/Below/Unsatisfactory)
+    technicalSkills: '' as 'above' | 'satisfactory' | 'below' | 'unsatisfactory',
+    communication: '' as 'above' | 'satisfactory' | 'below' | 'unsatisfactory',
+    leadership: '' as 'above' | 'satisfactory' | 'below' | 'unsatisfactory',
+    culturalFit: '' as 'above' | 'satisfactory' | 'below' | 'unsatisfactory',
+    overallRating: '' as 'above' | 'satisfactory' | 'below' | 'unsatisfactory',
     
     // Comments
     strengths: '',
@@ -83,28 +84,32 @@ const InterviewEvaluationForm: React.FC<InterviewEvaluationFormProps> = ({
     }
   };
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.interviewerName.trim()) {
-      newErrors.interviewerName = 'Interviewer name is required';
-    }
-
-    if (!formData.interviewDate) {
-      newErrors.interviewDate = 'Interview date is required';
-    }
-
-    if (formData.technicalSkills === 0) {
-      newErrors.technicalSkills = 'Technical skills rating is required';
-    }
-
-    if (formData.communication === 0) {
-      newErrors.communication = 'Communication rating is required';
-    }
-
-    if (formData.culturalFit === 0) {
-      newErrors.culturalFit = 'Cultural fit rating is required';
-    }
+         const validateForm = () => {
+         const newErrors: Record<string, string> = {};
+     
+         if (!formData.interviewerName.trim()) {
+           newErrors.interviewerName = 'Interviewer name is required';
+         }
+     
+         if (!formData.interviewDate) {
+           newErrors.interviewDate = 'Interview date is required';
+         }
+     
+         if (!formData.technicalSkills) {
+           newErrors.technicalSkills = 'Technical skills rating is required';
+         }
+     
+         if (!formData.communication) {
+           newErrors.communication = 'Communication rating is required';
+         }
+     
+         if (!formData.leadership) {
+           newErrors.leadership = 'Leadership rating is required';
+         }
+     
+         if (!formData.culturalFit) {
+           newErrors.culturalFit = 'Cultural fit rating is required';
+         }
 
     if (!formData.strengths.trim()) {
       newErrors.strengths = 'Strengths are required';
@@ -130,22 +135,23 @@ const InterviewEvaluationForm: React.FC<InterviewEvaluationFormProps> = ({
     e.preventDefault();
     
     if (validateForm()) {
-      const evaluation: Omit<InterviewEvaluation, 'id' | 'evaluatedBy' | 'evaluatedAt'> = {
-        candidateId,
-        jobId,
-        interviewerName: formData.interviewerName,
-        interviewDate: formData.interviewDate,
-        interviewMode: formData.interviewMode,
-        technicalSkills: formData.technicalSkills,
-        communication: formData.communication,
-        culturalFit: formData.culturalFit,
-        overallRating: formData.overallRating,
-        strengths: formData.strengths,
-        weaknesses: formData.weaknesses,
-        comments: formData.comments,
-        recommendation: formData.recommendation,
-        isSubmittedToClient: false
-      };
+                 const evaluation: Omit<InterviewEvaluation, 'id' | 'evaluatedBy' | 'evaluatedAt'> = {
+             candidateId,
+             jobId,
+             interviewerName: formData.interviewerName,
+             interviewDate: formData.interviewDate,
+             interviewMode: formData.interviewMode,
+             technicalSkills: formData.technicalSkills,
+             communication: formData.communication,
+             leadership: formData.leadership,
+             culturalFit: formData.culturalFit,
+             overallRating: formData.overallRating,
+             strengths: formData.strengths,
+             weaknesses: formData.weaknesses,
+             comments: formData.comments,
+             recommendation: formData.recommendation,
+             isSubmittedToClient: false
+           };
 
       onSave(evaluation);
       onClose();
@@ -174,38 +180,33 @@ const InterviewEvaluationForm: React.FC<InterviewEvaluationFormProps> = ({
     alert('PDF generation would be implemented here with a library like jsPDF or similar');
   };
 
-  const RatingStars: React.FC<{
-    rating: number;
-    onRatingChange: (rating: number) => void;
-    error?: string;
-  }> = ({ rating, onRatingChange, error }) => (
-    <div>
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={() => onRatingChange(star)}
-            className="focus:outline-none"
-          >
-            <Star
-              className={`w-6 h-6 ${
-                star <= rating
-                  ? 'text-yellow-400 fill-current'
-                  : 'text-gray-300 hover:text-yellow-300'
-              }`}
-            />
-          </button>
-        ))}
-      </div>
-      {error && (
-        <p className="mt-1 text-sm text-red-600 flex items-center">
-          <AlertCircle className="w-4 h-4 mr-1" />
-          {error}
-        </p>
-      )}
-    </div>
-  );
+         const RatingSelect: React.FC<{
+         rating: string;
+         onRatingChange: (rating: 'above' | 'satisfactory' | 'below' | 'unsatisfactory') => void;
+         error?: string;
+       }> = ({ rating, onRatingChange, error }) => (
+         <div>
+           <select
+             value={rating}
+             onChange={(e) => onRatingChange(e.target.value as any)}
+             className={`w-full px-3 py-2 border rounded-lg focus:ring-[#114373] focus:border-[#114373] ${
+               error ? 'border-red-500' : 'border-gray-300'
+             }`}
+           >
+             <option value="">Select rating</option>
+             <option value="above">Above</option>
+             <option value="satisfactory">Satisfactory</option>
+             <option value="below">Below</option>
+             <option value="unsatisfactory">Unsatisfactory</option>
+           </select>
+           {error && (
+             <p className="mt-1 text-sm text-red-600 flex items-center">
+               <AlertCircle className="w-4 h-4 mr-1" />
+               {error}
+             </p>
+           )}
+         </div>
+       );
 
   if (!isOpen) return null;
 
@@ -297,50 +298,61 @@ const InterviewEvaluationForm: React.FC<InterviewEvaluationFormProps> = ({
           <div className="space-y-6">
             <h4 className="font-medium text-gray-900">Candidate Assessment</h4>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Technical Skills
                 </label>
-                <RatingStars
+                <RatingSelect
                   rating={formData.technicalSkills}
-                  onRatingChange={(rating) => handleRatingChange('technicalSkills', rating)}
+                  onRatingChange={(rating) => handleInputChange('technicalSkills', rating)}
                   error={errors.technicalSkills}
                 />
               </div>
-
+     
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Communication Skills
                 </label>
-                <RatingStars
+                <RatingSelect
                   rating={formData.communication}
-                  onRatingChange={(rating) => handleRatingChange('communication', rating)}
+                  onRatingChange={(rating) => handleInputChange('communication', rating)}
                   error={errors.communication}
                 />
               </div>
-
+     
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Leadership
+                </label>
+                <RatingSelect
+                  rating={formData.leadership}
+                  onRatingChange={(rating) => handleInputChange('leadership', rating)}
+                  error={errors.leadership}
+                />
+              </div>
+     
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Cultural Fit & Attitude
                 </label>
-                <RatingStars
+                <RatingSelect
                   rating={formData.culturalFit}
-                  onRatingChange={(rating) => handleRatingChange('culturalFit', rating)}
+                  onRatingChange={(rating) => handleInputChange('culturalFit', rating)}
                   error={errors.culturalFit}
                 />
               </div>
-
+     
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Overall Rating
                 </label>
-                <RatingStars
+                <RatingSelect
                   rating={formData.overallRating}
-                  onRatingChange={(rating) => handleRatingChange('overallRating', rating)}
+                  onRatingChange={(rating) => handleInputChange('overallRating', rating)}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Auto-calculated as average of other ratings
+                  Based on overall assessment
                 </p>
               </div>
             </div>

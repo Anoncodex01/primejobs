@@ -160,11 +160,12 @@ export interface InterviewEvaluation {
   interviewDate: string;
   interviewMode: 'online' | 'physical';
 
-  // Ratings (1-5 scale)
-  technicalSkills: number;
-  communication: number;
-  culturalFit: number;
-  overallRating: number;
+  // Ratings (Above/Satisfactory/Below/Unsatisfactory)
+  technicalSkills: 'above' | 'satisfactory' | 'below' | 'unsatisfactory';
+  communication: 'above' | 'satisfactory' | 'below' | 'unsatisfactory';
+  leadership: 'above' | 'satisfactory' | 'below' | 'unsatisfactory';
+  culturalFit: 'above' | 'satisfactory' | 'below' | 'unsatisfactory';
+  overallRating: 'above' | 'satisfactory' | 'below' | 'unsatisfactory';
 
   // Comments
   strengths: string;

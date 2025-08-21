@@ -381,7 +381,7 @@ const JobPostings: FC = () => {
         <>
           <div className="divide-y divide-gray-200">
             {filteredJobs.map((job) => (
-              <div key={job.id} className="p-6 hover:bg-gray-50 transition-colors">
+              <div key={job.id} className="p-6 hover:bg-gray-50 transition-colors group">
                 <div className="flex items-start gap-4">
                   {/* Checkbox */}
                   <input
@@ -427,9 +427,36 @@ const JobPostings: FC = () => {
                             {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                           </div>
                         </span>
-                        <button className="p-2 text-gray-400 hover:text-gray-600">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
+                        <div className="relative">
+                          <button className="p-2 text-gray-400 hover:text-gray-600">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                          {/* Dropdown Menu */}
+                          <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[160px] hidden group-hover:block">
+                            <div className="p-1">
+                              <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded flex items-center gap-2">
+                                <Eye className="w-4 h-4" />
+                                View Details
+                              </button>
+                              {job.status === 'active' && (
+                                <>
+                                  <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded flex items-center gap-2">
+                                    <Edit className="w-4 h-4" />
+                                    Edit Job
+                                  </button>
+                                  <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded flex items-center gap-2 text-red-600">
+                                    <Trash2 className="w-4 h-4" />
+                                    Remove Job
+                                  </button>
+                                </>
+                              )}
+                              <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded flex items-center gap-2">
+                                <Copy className="w-4 h-4" />
+                                Duplicate
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
