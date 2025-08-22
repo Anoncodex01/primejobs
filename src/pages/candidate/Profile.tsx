@@ -13,8 +13,17 @@ import {
 import { 
   getAllLanguages, 
   getLanguageProficiencyLevels, 
-  searchLanguages 
+  searchLanguages,
+  LanguageProficiency
 } from '../../utils/languageData';
+import { 
+  searchNationalities 
+} from '../../utils/jobData';
+import { 
+  searchCountries,
+  searchRegionsByCountry,
+  searchCitiesByRegion
+} from '../../utils/globalData';
 import {
   User,
   Mail,
@@ -508,6 +517,18 @@ const CandidateProfile: FC = () => {
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [editingLanguage, setEditingLanguage] = useState<Language | null>(null);
   const [languageSearchQuery, setLanguageSearchQuery] = useState('');
+  
+  // Searchable dropdown states
+  const [showNationalityDropdown, setShowNationalityDropdown] = useState(false);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [showRegionDropdown, setShowRegionDropdown] = useState(false);
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [showAddressCountryDropdown, setShowAddressCountryDropdown] = useState(false);
+  const [showAddressStateDropdown, setShowAddressStateDropdown] = useState(false);
+  
+  // Education modal states
+  const [showEducationModal, setShowEducationModal] = useState(false);
+  const [editingEducation, setEditingEducation] = useState<Education | null>(null);
 
 
 
@@ -617,6 +638,46 @@ const CandidateProfile: FC = () => {
     setProfile(prev => ({
       ...prev,
       languages: prev.languages.filter(lang => lang.id !== languageId)
+    }));
+  };
+
+  // Education management functions
+  const handleAddEducation = (educationData: Omit<Education, 'id'>) => {
+    const newEducation: Education = {
+      ...educationData,
+      id: Date.now().toString()
+    };
+    
+    setProfile(prev => ({
+      ...prev,
+      education: [...prev.education, newEducation]
+    }));
+    setShowEducationModal(false);
+    setEditingEducation(null);
+  };
+
+  const handleEditEducation = (education: Education) => {
+    setEditingEducation(education);
+    setShowEducationModal(true);
+  };
+
+  const handleUpdateEducation = (educationId: string, educationData: Omit<Education, 'id'>) => {
+    setProfile(prev => ({
+      ...prev,
+      education: prev.education.map(edu => 
+        edu.id === educationId 
+          ? { ...educationData, id: educationId }
+          : edu
+      )
+    }));
+    setShowEducationModal(false);
+    setEditingEducation(null);
+  };
+
+  const handleRemoveEducation = (educationId: string) => {
+    setProfile(prev => ({
+      ...prev,
+      education: prev.education.filter(edu => edu.id !== educationId)
     }));
   };
 
@@ -892,20 +953,38 @@ const CandidateProfile: FC = () => {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Nationality</label>
-                    <select
-                      value={profile.nationality}
-                      onChange={(e) => handleInputChange('nationality', e.target.value)}
-                      disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                    >
-                      <option value="">Select Nationality</option>
-                      {nationalities.map(nationality => (
-                        <option key={nationality} value={nationality}>{nationality}</option>
+                              <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nationality</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={profile.nationality}
+                  onChange={(e) => handleInputChange('nationality', e.target.value)}
+                  placeholder="Search or select nationality..."
+                  disabled={!isEditing}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
+                  onFocus={() => isEditing && setShowNationalityDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowNationalityDropdown(false), 200)}
+                />
+                {showNationalityDropdown && isEditing && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                    {searchNationalities(profile.nationality)
+                      .map(nationality => (
+                        <div
+                          key={nationality}
+                          className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          onClick={() => {
+                            handleInputChange('nationality', nationality);
+                            setShowNationalityDropdown(false);
+                          }}
+                        >
+                          {nationality}
+                        </div>
                       ))}
-                    </select>
                   </div>
+                )}
+              </div>
+            </div>
                 </div>
 
                 {/* Contact Information */}
@@ -952,64 +1031,127 @@ const CandidateProfile: FC = () => {
               <div className="mt-8">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Location Information</h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Current Location</label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {/* Country Dropdown */}
-                      <select
-                        value={selectedCountry}
-                        onChange={(e) => {
-                          setSelectedCountry(e.target.value);
-                          setSelectedRegion('');
-                          setSelectedCity('');
-                          handleLocationChange('country', e.target.value);
-                          handleLocationChange('state', '');
-                          handleLocationChange('city', '');
-                        }}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                      >
-                        <option value="">Select Country</option>
-                        {getAllCountries().map(country => (
-                          <option key={country} value={country}>{country}</option>
+                              <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Current Location</label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Country Dropdown */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={selectedCountry}
+                    onChange={(e) => {
+                      setSelectedCountry(e.target.value);
+                      setSelectedRegion('');
+                      setSelectedCity('');
+                      handleLocationChange('country', e.target.value);
+                      handleLocationChange('state', '');
+                      handleLocationChange('city', '');
+                    }}
+                    placeholder="Search or select country..."
+                    disabled={!isEditing}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
+                    onFocus={() => isEditing && setShowCountryDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowCountryDropdown(false), 200)}
+                  />
+                  {showCountryDropdown && isEditing && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                      {searchCountries(selectedCountry)
+                        .map(country => (
+                          <div
+                            key={country}
+                            className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            onClick={() => {
+                              setSelectedCountry(country);
+                              setSelectedRegion('');
+                              setSelectedCity('');
+                              handleLocationChange('country', country);
+                              handleLocationChange('state', '');
+                              handleLocationChange('city', '');
+                              setShowCountryDropdown(false);
+                            }}
+                          >
+                            {country}
+                          </div>
                         ))}
-                      </select>
-
-                      {/* Region/State Dropdown */}
-                      <select
-                        value={selectedRegion}
-                        onChange={(e) => {
-                          setSelectedRegion(e.target.value);
-                          setSelectedCity('');
-                          handleLocationChange('state', e.target.value);
-                          handleLocationChange('city', '');
-                        }}
-                        disabled={!isEditing || !selectedCountry}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                      >
-                        <option value="">Select Region/State</option>
-                        {selectedCountry && getRegionsByCountry(selectedCountry).map(region => (
-                          <option key={region} value={region}>{region}</option>
-                        ))}
-                      </select>
-
-                      {/* City Dropdown */}
-                      <select
-                        value={selectedCity}
-                        onChange={(e) => {
-                          setSelectedCity(e.target.value);
-                          handleLocationChange('city', e.target.value);
-                        }}
-                        disabled={!isEditing || !selectedRegion}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
-                      >
-                        <option value="">Select City</option>
-                        {selectedRegion && getCitiesByRegion(selectedCountry, selectedRegion).map(city => (
-                          <option key={city} value={city}>{city}</option>
-                        ))}
-                      </select>
                     </div>
-                  </div>
+                  )}
+                </div>
+
+                {/* Region/State Dropdown */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={selectedRegion}
+                    onChange={(e) => {
+                      setSelectedRegion(e.target.value);
+                      setSelectedCity('');
+                      handleLocationChange('state', e.target.value);
+                      handleLocationChange('city', '');
+                    }}
+                    placeholder="Search or select region/state..."
+                    disabled={!isEditing || !selectedCountry}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
+                    onFocus={() => isEditing && selectedCountry && setShowRegionDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowRegionDropdown(false), 200)}
+                  />
+                  {showRegionDropdown && isEditing && selectedCountry && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                      {searchRegionsByCountry(selectedCountry, selectedRegion)
+                        .map(region => (
+                          <div
+                            key={region}
+                            className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            onClick={() => {
+                              setSelectedRegion(region);
+                              setSelectedCity('');
+                              handleLocationChange('state', region);
+                              handleLocationChange('city', '');
+                              setShowRegionDropdown(false);
+                            }}
+                          >
+                            {region}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* City Dropdown */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={selectedCity}
+                    onChange={(e) => {
+                      setSelectedCity(e.target.value);
+                      handleLocationChange('city', e.target.value);
+                    }}
+                    placeholder="Search or select city..."
+                    disabled={!isEditing || !selectedRegion}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent disabled:bg-gray-100"
+                    onFocus={() => isEditing && selectedRegion && setShowCityDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowCityDropdown(false), 200)}
+                  />
+                  {showCityDropdown && isEditing && selectedRegion && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                      {searchCitiesByRegion(selectedCountry, selectedRegion, selectedCity)
+                        .map(city => (
+                          <div
+                            key={city}
+                            className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            onClick={() => {
+                              setSelectedCity(city);
+                              handleLocationChange('city', city);
+                              setShowCityDropdown(false);
+                            }}
+                          >
+                            {city}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Locations</label>
@@ -1125,17 +1267,39 @@ const CandidateProfile: FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     State
                   </label>
-                  <select
-                    value={profile.address.state}
-                    onChange={(e) => handleAddressChange('state', e.target.value)}
-                    disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373] disabled:bg-gray-50"
-                  >
-                    <option value="">Select State</option>
-                    {states.map(state => (
-                      <option key={state} value={state}>{state}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={profile.address.state}
+                      onChange={(e) => handleAddressChange('state', e.target.value)}
+                      placeholder="Search or select state..."
+                      disabled={!isEditing}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373] disabled:bg-gray-50"
+                      onFocus={() => isEditing && setShowAddressStateDropdown(true)}
+                      onBlur={() => setTimeout(() => setShowAddressStateDropdown(false), 200)}
+                    />
+                    {showAddressStateDropdown && isEditing && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                        {states
+                          .filter(state => 
+                            state.toLowerCase().includes(profile.address.state.toLowerCase()) || 
+                            profile.address.state === ''
+                          )
+                          .map(state => (
+                            <div
+                              key={state}
+                              className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                              onClick={() => {
+                                handleAddressChange('state', state);
+                                setShowAddressStateDropdown(false);
+                              }}
+                            >
+                              {state}
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {/* Postal Code */}
                 <div>
@@ -1157,17 +1321,35 @@ const CandidateProfile: FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Country
                 </label>
-                <select
-                  value={profile.address.country}
-                  onChange={(e) => handleAddressChange('country', e.target.value)}
-                  disabled={!isEditing}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373] disabled:bg-gray-50"
-                >
-                  <option value="">Select Country</option>
-                  {getAllCountries().map(country => (
-                    <option key={country} value={country}>{country}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={profile.address.country}
+                    onChange={(e) => handleAddressChange('country', e.target.value)}
+                    placeholder="Search or select country..."
+                    disabled={!isEditing}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373] disabled:bg-gray-50"
+                    onFocus={() => isEditing && setShowAddressCountryDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowAddressCountryDropdown(false), 200)}
+                  />
+                  {showAddressCountryDropdown && isEditing && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                      {searchCountries(profile.address.country)
+                        .map(country => (
+                          <div
+                            key={country}
+                            className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                            onClick={() => {
+                              handleAddressChange('country', country);
+                              setShowAddressCountryDropdown(false);
+                            }}
+                          >
+                            {country}
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -1392,7 +1574,7 @@ const CandidateProfile: FC = () => {
               <h3 className="text-lg font-semibold text-gray-900">Education Details</h3>
               {isEditing && (
                 <button
-                  onClick={() => {/* TODO: Add education modal */}}
+                  onClick={() => setShowEducationModal(true)}
                   className="px-3 py-1 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] text-sm flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
@@ -1418,10 +1600,16 @@ const CandidateProfile: FC = () => {
                         </h4>
                         {isEditing && (
                           <div className="flex gap-2">
-                            <button className="text-[#114373] hover:text-[#0d3559] text-sm">
+                            <button 
+                              onClick={() => handleEditEducation(edu)}
+                              className="text-[#114373] hover:text-[#0d3559] text-sm"
+                            >
                               Edit
                             </button>
-                            <button className="text-red-600 hover:text-red-800 text-sm">
+                            <button 
+                              onClick={() => handleRemoveEducation(edu.id)}
+                              className="text-red-600 hover:text-red-800 text-sm"
+                            >
                               Remove
                             </button>
                           </div>
@@ -1450,7 +1638,10 @@ const CandidateProfile: FC = () => {
                   <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600">No education details added yet.</p>
                   {isEditing && (
-                    <button className="mt-4 px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559]">
+                    <button 
+                      onClick={() => setShowEducationModal(true)}
+                      className="mt-4 px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559]"
+                    >
                       Add Education
                     </button>
                   )}
@@ -1994,6 +2185,25 @@ const CandidateProfile: FC = () => {
           }}
         />
       )}
+
+      {/* Education Modal */}
+      {showEducationModal && (
+        <EducationModal
+          isOpen={showEducationModal}
+          onClose={() => {
+            setShowEducationModal(false);
+            setEditingEducation(null);
+          }}
+          education={editingEducation}
+          onSave={(educationData) => {
+            if (editingEducation) {
+              handleUpdateEducation(editingEducation.id, educationData);
+            } else {
+              handleAddEducation(educationData);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -2020,17 +2230,15 @@ const EmploymentModal: FC<EmploymentModalProps> = ({ isOpen, onClose, employment
     functionalArea: employment?.functionalArea || ''
   });
 
-  const industries = [
-    'Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing', 'Retail',
-    'Consulting', 'Media & Entertainment', 'Real Estate', 'Transportation', 'Energy',
-    'Government', 'Non-profit', 'Other'
-  ];
+  const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
+  const [showFunctionalAreaDropdown, setShowFunctionalAreaDropdown] = useState(false);
+  const [showJobTitleDropdown, setShowJobTitleDropdown] = useState(false);
 
-  const functionalAreas = [
-    'Software Development', 'Data Science', 'Product Management', 'Marketing',
-    'Sales', 'Human Resources', 'Finance', 'Operations', 'Customer Service',
-    'Research & Development', 'Quality Assurance', 'Project Management', 'Other'
-  ];
+  // Use our comprehensive job categories as industries
+  const industries = getJobCategories();
+
+  // Use job titles as functional areas
+  const functionalAreas = getAllJobTitles();
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -2078,17 +2286,40 @@ const EmploymentModal: FC<EmploymentModalProps> = ({ isOpen, onClose, employment
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
-              <select
-                value={formData.designation}
-                onChange={(e) => handleInputChange('designation', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
-                required
-              >
-                <option value="">Select Job Title</option>
-                {getAllJobTitles().map(jobTitle => (
-                  <option key={jobTitle} value={jobTitle}>{jobTitle}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.designation}
+                  onChange={(e) => handleInputChange('designation', e.target.value)}
+                  placeholder="Search or select job title..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+                  required
+                  onFocus={() => setShowJobTitleDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowJobTitleDropdown(false), 200)}
+                />
+                {showJobTitleDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                    {getAllJobTitles()
+                      .filter(jobTitle => 
+                        jobTitle.toLowerCase().includes(formData.designation.toLowerCase()) || 
+                        formData.designation === ''
+                      )
+                      .slice(0, 20)
+                      .map(jobTitle => (
+                        <div
+                          key={jobTitle}
+                          className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          onClick={() => {
+                            handleInputChange('designation', jobTitle);
+                            setShowJobTitleDropdown(false);
+                          }}
+                        >
+                          {jobTitle}
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -2131,29 +2362,74 @@ const EmploymentModal: FC<EmploymentModalProps> = ({ isOpen, onClose, employment
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
-              <select
-                value={formData.industry}
-                onChange={(e) => handleInputChange('industry', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
-              >
-                <option value="">Select Industry</option>
-                {industries.map(industry => (
-                  <option key={industry} value={industry}>{industry}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.industry}
+                  onChange={(e) => handleInputChange('industry', e.target.value)}
+                  placeholder="Search or select industry..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+                  onFocus={() => setShowIndustryDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowIndustryDropdown(false), 200)}
+                />
+                {showIndustryDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                    {industries
+                      .filter(industry => 
+                        industry.toLowerCase().includes(formData.industry.toLowerCase()) || 
+                        formData.industry === ''
+                      )
+                      .map(industry => (
+                        <div
+                          key={industry}
+                          className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          onClick={() => {
+                            handleInputChange('industry', industry);
+                            setShowIndustryDropdown(false);
+                          }}
+                        >
+                          {industry}
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Functional Area</label>
-              <select
-                value={formData.functionalArea}
-                onChange={(e) => handleInputChange('functionalArea', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
-              >
-                <option value="">Select Functional Area</option>
-                {functionalAreas.map(area => (
-                  <option key={area} value={area}>{area}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.functionalArea}
+                  onChange={(e) => handleInputChange('functionalArea', e.target.value)}
+                  placeholder="Search or select functional area..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+                  onFocus={() => setShowFunctionalAreaDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowFunctionalAreaDropdown(false), 200)}
+                />
+                {showFunctionalAreaDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                    {functionalAreas
+                      .filter(area => 
+                        area.toLowerCase().includes(formData.functionalArea.toLowerCase()) || 
+                        formData.functionalArea === ''
+                      )
+                      .slice(0, 20)
+                      .map(area => (
+                        <div
+                          key={area}
+                          className="px-3 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          onClick={() => {
+                            handleInputChange('functionalArea', area);
+                            setShowFunctionalAreaDropdown(false);
+                          }}
+                        >
+                          {area}
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -2559,6 +2835,144 @@ const LanguageModal: React.FC<{
               className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               {language ? 'Update Language' : 'Add Language'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Education Modal Component
+const EducationModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  education?: Education | null;
+  onSave: (educationData: Omit<Education, 'id'>) => void;
+}> = ({ isOpen, onClose, education, onSave }) => {
+  const [formData, setFormData] = useState({
+    degree: education?.degree || '',
+    specialization: education?.specialization || '',
+    institute: education?.institute || '',
+    yearOfPassing: education?.yearOfPassing || '',
+    isHighestQualification: education?.isHighestQualification || false
+  });
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.degree && formData.institute && formData.yearOfPassing) {
+      onSave(formData);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {education ? 'Edit Education' : 'Add Education'}
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Degree */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Degree *</label>
+            <input
+              type="text"
+              value={formData.degree}
+              onChange={(e) => handleInputChange('degree', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+              placeholder="e.g., Bachelor of Technology, Master of Science"
+              required
+            />
+          </div>
+
+          {/* Specialization */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Specialization</label>
+            <input
+              type="text"
+              value={formData.specialization}
+              onChange={(e) => handleInputChange('specialization', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+              placeholder="e.g., Computer Science, Business Administration"
+            />
+          </div>
+
+          {/* Institute */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Institute *</label>
+            <input
+              type="text"
+              value={formData.institute}
+              onChange={(e) => handleInputChange('institute', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+              placeholder="e.g., Stanford University"
+              required
+            />
+          </div>
+
+          {/* Year of Passing */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Year of Passing *</label>
+            <input
+              type="number"
+              value={formData.yearOfPassing}
+              onChange={(e) => handleInputChange('yearOfPassing', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+              placeholder="e.g., 2019"
+              min="1950"
+              max={new Date().getFullYear() + 5}
+              required
+            />
+          </div>
+
+          {/* Highest Qualification */}
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.isHighestQualification}
+              onChange={(e) => handleInputChange('isHighestQualification', e.target.checked)}
+              className="text-[#114373] focus:ring-[#114373]"
+            />
+            <label className="text-sm font-medium text-gray-700">
+              This is my highest qualification
+            </label>
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={!formData.degree || !formData.institute || !formData.yearOfPassing}
+              className="px-4 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
+              {education ? 'Update Education' : 'Add Education'}
             </button>
           </div>
         </form>
