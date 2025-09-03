@@ -139,6 +139,7 @@ const Candidates: FC = () => {
         countryCode: '+1',
         number: '(555) 345-6789'
       },
+      status: 'new',
       appliedDate: '2024-01-20',
       lastActivity: '2024-01-25',
       skills: ['Python', 'Django', 'PostgreSQL'],
@@ -147,13 +148,23 @@ const Candidates: FC = () => {
       currentSalary: '$75,000',
       expectedSalary: '$90,000',
       education: 'Bachelor\'s Degree',
-      notes: 'Great team player, quick learner'
+      notes: 'Great team player, quick learner',
+      nationality: 'American',
+      currentCompany: 'Startup Inc',
+      noticePeriod: '15 days',
+      languages: [
+        { name: 'English', proficiency: 'Native' },
+        { name: 'Mandarin', proficiency: 'Professional' }
+      ]
     },
     {
       id: '4',
       name: 'Emily Rodriguez',
       email: 'emily.r@email.com',
-      phone: '+1 (555) 456-7890',
+      phone: {
+        countryCode: '+1',
+        number: '(555) 456-7890'
+      },
       status: 'placed',
       appliedDate: '2024-01-10',
       lastActivity: '2024-01-15',
@@ -163,13 +174,23 @@ const Candidates: FC = () => {
       currentSalary: '$70,000',
       expectedSalary: '$85,000',
       education: 'Bachelor\'s Degree',
-      notes: 'Successfully placed at Tech Corp'
+      notes: 'Successfully placed at Tech Corp',
+      nationality: 'Mexican',
+      currentCompany: 'Tech Corp',
+      noticePeriod: 'Immediate',
+      languages: [
+        { name: 'English', proficiency: 'Professional' },
+        { name: 'Spanish', proficiency: 'Native' }
+      ]
     },
     {
       id: '5',
       name: 'David Kim',
       email: 'david.kim@email.com',
-      phone: '+1 (555) 567-8901',
+      phone: {
+        countryCode: '+1',
+        number: '(555) 567-8901'
+      },
       status: 'rejected',
       appliedDate: '2024-01-25',
       lastActivity: '2024-01-28',
@@ -179,7 +200,14 @@ const Candidates: FC = () => {
       currentSalary: '$85,000',
       expectedSalary: '$110,000',
       education: 'Bachelor\'s Degree',
-      notes: 'Not a good cultural fit'
+      notes: 'Not a good cultural fit',
+      nationality: 'Korean',
+      currentCompany: 'Enterprise Corp',
+      noticePeriod: '60 days',
+      languages: [
+        { name: 'English', proficiency: 'Professional' },
+        { name: 'Korean', proficiency: 'Native' }
+      ]
     }
   ];
 
@@ -469,7 +497,12 @@ const Candidates: FC = () => {
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{candidate.name}</div>
                         <div className="text-sm text-gray-500">{candidate.email}</div>
-                        <div className="text-xs text-gray-400">{candidate.phone.countryCode} {candidate.phone.number}</div>
+                        <div className="text-xs text-gray-400">
+                          {typeof candidate.phone === 'string' 
+                            ? candidate.phone 
+                            : `${candidate.phone.countryCode} ${candidate.phone.number}`
+                          }
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -505,13 +538,16 @@ const Candidates: FC = () => {
                       >
                         <Eye className="w-4 h-4" />
                       </Link>
-                      <a
-                        href={`tel:${candidate.phone.countryCode}${candidate.phone.number.replace(/\D/g, '')}`}
-                        className="text-gray-600 hover:text-green-600"
-                        title="Call"
-                      >
-                        <Phone className="w-4 h-4" />
-                      </a>
+                                              <a
+                          href={`tel:${typeof candidate.phone === 'string' 
+                            ? candidate.phone.replace(/\D/g, '') 
+                            : `${candidate.phone.countryCode.replace('+', '')}${candidate.phone.number.replace(/\D/g, '')}`
+                          }`}
+                          className="text-gray-600 hover:text-green-600"
+                          title="Call"
+                        >
+                          <Phone className="w-4 h-4" />
+                        </a>
                       <a
                         href={`mailto:${candidate.email}`}
                         className="text-gray-600 hover:text-blue-600"

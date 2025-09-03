@@ -132,18 +132,18 @@ const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
       submenu: []
     },
     {
-      name: 'Job Management',
+      name: 'Jobs',
       href: '/admin/job-posting',
       icon: <Briefcase className="w-5 h-5" />,
       current: location.pathname.startsWith('/admin/job'),
       submenu: [
         { name: 'Post New Job', href: '/admin/job-posting' },
         { name: 'Job Requirements', href: '/admin/job-requirements' },
-        { name: 'All Jobs', href: '/admin/job-posting' }
+        { name: 'All Jobs', href: '/admin/jobs' }
       ]
     },
     {
-      name: 'Candidate Management',
+      name: 'Candidates',
       href: '/admin/candidates',
       icon: <Users className="w-5 h-5" />,
       current: location.pathname.startsWith('/admin/candidate'),
@@ -154,17 +154,17 @@ const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
       ]
     },
     {
-      name: 'Employer Management',
+      name: 'Employers',
       href: '/admin/employers',
       icon: <Building2 className="w-5 h-5" />,
       current: location.pathname.startsWith('/admin/employer'),
       submenu: [
         { name: 'All Employers', href: '/admin/employers' },
-        { name: 'Employer Verification', href: '/admin/employers' }
+        { name: 'Employer Verification', href: '/admin/employer-verification' }
       ]
     },
     {
-      name: 'Application Workflow',
+      name: 'Applications',
       href: '/admin/application-management',
       icon: <FileCheck className="w-5 h-5" />,
       current: location.pathname.startsWith('/admin/application'),
@@ -175,7 +175,7 @@ const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
       ]
     },
     {
-      name: 'Interviews & Placements',
+      name: 'Interviews',
       href: '/admin/interviews',
       icon: <Calendar className="w-5 h-5" />,
       current: location.pathname.startsWith('/admin/interview') || location.pathname.startsWith('/admin/placement'),
@@ -186,18 +186,18 @@ const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
       ]
     },
     {
-      name: 'Financial Management',
+      name: 'Finance',
       href: '/admin/invoices',
       icon: <DollarSign className="w-5 h-5" />,
       current: location.pathname.startsWith('/admin/invoice') || location.pathname.startsWith('/admin/billing'),
       submenu: [
         { name: 'Generate Invoice', href: '/admin/invoices' },
-        { name: 'Payment History', href: '/admin/invoices' },
-        { name: 'Billing Management', href: '/admin/invoices' }
+        { name: 'Payment History', href: '/admin/payment-history' },
+        { name: 'Billing Management', href: '/admin/billing' }
       ]
     },
     {
-      name: 'Analytics & Reports',
+      name: 'Analytics',
       href: '/admin/reports',
       icon: <PieChart className="w-5 h-5" />,
       current: location.pathname.startsWith('/admin/reports'),
@@ -208,7 +208,7 @@ const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
       ]
     },
     {
-      name: 'Communication & Support',
+      name: 'Communication',
       href: '/admin/communications',
       icon: <MessageSquare className="w-5 h-5" />,
       current: location.pathname.startsWith('/admin/communications'),
@@ -219,7 +219,7 @@ const AdminLayout: FC<AdminLayoutProps> = ({ children }) => {
       ]
     },
     {
-      name: 'System Settings',
+      name: 'Settings',
       href: '/admin/settings',
       icon: <Settings className="w-5 h-5" />,
       current: location.pathname.startsWith('/admin/settings'),

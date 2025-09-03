@@ -306,8 +306,8 @@ Axia HR Advisory & Recruitment Team`;
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Application Management</h1>
-          <p className="text-gray-600">Review, shortlist, and manage candidate applications</p>
+          <h2 className="text-lg font-semibold text-gray-900">Applications</h2>
+          <p className="text-gray-600">Review and manage candidate applications</p>
         </div>
         <div className="flex items-center gap-2">
           {selectedApplications.length > 0 && (

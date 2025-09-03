@@ -63,7 +63,12 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminLogin from './pages/admin/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminCandidates from './pages/admin/Candidates';
+import AdminCandidateProfile from './pages/admin/CandidateProfile';
 import AdminEmployers from './pages/admin/Employers';
+import AdminEmployerVerification from './pages/admin/EmployerVerification';
+import AdminJobs from './pages/admin/Jobs';
+import AdminPaymentHistory from './pages/admin/PaymentHistory';
+import AdminBilling from './pages/admin/Billing';
 import AdminApplications from './pages/admin/Applications';
 import AdminInterviews from './pages/admin/Interviews';
 import AdminPlacements from './pages/admin/Placements';
@@ -318,18 +323,23 @@ function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
           <Route path="/admin/candidates" element={<AdminLayout><AdminCandidates /></AdminLayout>} />
+          <Route path="/admin/candidates/:id" element={<AdminLayout><AdminCandidateProfile /></AdminLayout>} />
           <Route path="/admin/enhanced-search" element={<AdminLayout><EnhancedSearch /></AdminLayout>} />
           <Route path="/admin/job-posting" element={<AdminLayout><JobPosting /></AdminLayout>} />
+          <Route path="/admin/jobs" element={<AdminLayout><AdminJobs /></AdminLayout>} />
           <Route path="/admin/application-management" element={<AdminLayout><ApplicationManagement /></AdminLayout>} />
           <Route path="/admin/candidate-search" element={<AdminLayout><CandidateSearch /></AdminLayout>} />
           <Route path="/admin/application-workflow" element={<AdminLayout><ApplicationWorkflow /></AdminLayout>} />
           <Route path="/admin/employers" element={<AdminLayout><AdminEmployers /></AdminLayout>} />
+          <Route path="/admin/employer-verification" element={<AdminLayout><AdminEmployerVerification /></AdminLayout>} />
           <Route path="/admin/job-requirements" element={<AdminLayout><AdminJobRequirements /></AdminLayout>} />
           <Route path="/admin/interview-evaluation" element={<AdminLayout><AdminInterviewEvaluation /></AdminLayout>} />
           <Route path="/admin/applications" element={<AdminLayout><AdminApplications /></AdminLayout>} />
           <Route path="/admin/interviews" element={<AdminLayout><AdminInterviews /></AdminLayout>} />
           <Route path="/admin/placements" element={<AdminLayout><AdminPlacements /></AdminLayout>} />
           <Route path="/admin/invoices" element={<AdminLayout><AdminInvoices /></AdminLayout>} />
+          <Route path="/admin/payment-history" element={<AdminLayout><AdminPaymentHistory /></AdminLayout>} />
+          <Route path="/admin/billing" element={<AdminLayout><AdminBilling /></AdminLayout>} />
           <Route path="/admin/reports" element={<AdminLayout><AdminReports /></AdminLayout>} />
           <Route path="/admin/communications" element={<AdminLayout><AdminCommunications /></AdminLayout>} />
           <Route path="/admin/performance" element={<AdminLayout><AdminPerformance /></AdminLayout>} />

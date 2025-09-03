@@ -5,7 +5,7 @@ import {
   X,
   MapPin,
   Briefcase,
-  DollarSign,
+  DollarSign, 
   GraduationCap,
   Building,
   Globe,

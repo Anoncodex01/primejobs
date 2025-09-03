@@ -100,7 +100,10 @@ interface Candidate {
   // Basic Details
   fullName: string;
   email: string;
-  phone: string;
+  phone: {
+    countryCode: string;
+    number: string;
+  };
   age: number;
   gender: string;
   nationality: string;
@@ -345,7 +348,10 @@ const CandidateSearch: FC = () => {
         // Basic Details
         fullName: 'John Doe',
         email: 'john.doe@email.com',
-        phone: '+1-555-123-4567',
+        phone: {
+          countryCode: '+1',
+          number: '(555) 123-4567'
+        },
         age: 28,
         gender: 'male',
         nationality: 'American',
@@ -1726,7 +1732,12 @@ const CandidateSearch: FC = () => {
                     <p className="text-lg text-gray-600">{selectedCandidate.resumeHeadline}</p>
                     <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
                       <span>{selectedCandidate.email}</span>
-                      <span>{selectedCandidate.phone}</span>
+                      <span>
+                        {typeof selectedCandidate.phone === 'string' 
+                          ? selectedCandidate.phone 
+                          : `${selectedCandidate.phone.countryCode} ${selectedCandidate.phone.number}`
+                        }
+                      </span>
                       <span>{selectedCandidate.age} years old</span>
                     </div>
                     <div className="mt-1 text-sm text-gray-500">
@@ -1772,7 +1783,12 @@ const CandidateSearch: FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Phone</label>
-                      <p className="text-sm text-gray-900">{selectedCandidate.phone}</p>
+                      <p className="text-sm text-gray-900">
+                      {typeof selectedCandidate.phone === 'string' 
+                        ? selectedCandidate.phone 
+                        : `${selectedCandidate.phone.countryCode} ${selectedCandidate.phone.number}`
+                      }
+                    </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Age</label>

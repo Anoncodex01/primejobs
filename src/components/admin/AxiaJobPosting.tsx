@@ -356,8 +356,8 @@ const AxiaJobPosting: FC<AxiaJobPostingProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Axia Job Posting Management</h1>
-          <p className="text-gray-600">Create, manage, and approve job postings for internal and external employers</p>
+          <h2 className="text-lg font-semibold text-gray-900">Job Postings</h2>
+          <p className="text-gray-600">Create and manage job postings</p>
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
