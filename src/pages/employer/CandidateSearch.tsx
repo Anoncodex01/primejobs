@@ -607,13 +607,28 @@ const EmployerCandidateSearch: FC = () => {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Current Location</label>
-                    <input
-                      type="text"
+                    <select
                       value={filters.currentLocation}
                       onChange={(e) => handleFilterChange('currentLocation', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="City, State, Country"
-                    />
+                    >
+                      <option value="">Any Location</option>
+                      <option value="Remote">Remote</option>
+                      <option value="Dar es Salaam">Dar es Salaam</option>
+                      <option value="Nairobi">Nairobi</option>
+                      <option value="Kampala">Kampala</option>
+                      <option value="Kigali">Kigali</option>
+                      <option value="New York">New York</option>
+                      <option value="San Francisco">San Francisco</option>
+                      <option value="London">London</option>
+                      <option value="Toronto">Toronto</option>
+                      <option value="Sydney">Sydney</option>
+                      <option value="Mumbai">Mumbai</option>
+                      <option value="Johannesburg">Johannesburg</option>
+                      <option value="Lagos">Lagos</option>
+                      <option value="Accra">Accra</option>
+                      <option value="Addis Ababa">Addis Ababa</option>
+                    </select>
                   </div>
                   
                   <div>

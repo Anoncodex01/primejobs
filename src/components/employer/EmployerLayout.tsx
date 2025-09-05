@@ -75,6 +75,12 @@ const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
       current: location.pathname === '/employer/candidate-search'
     },
     {
+      name: 'Saved Searches',
+      href: '/employer/saved-searches',
+      icon: <Search className="w-5 h-5" />,
+      current: location.pathname === '/employer/saved-searches'
+    },
+    {
       name: 'Interviews',
       href: '/employer/interviews',
       icon: <Calendar className="w-5 h-5" />,

@@ -1,43 +1,21 @@
-import React, { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect } from 'react';
 import {
   Search,
-  Filter,
-  X,
-  MapPin,
-  Briefcase,
-  DollarSign, 
-  GraduationCap,
-  Building,
-  Globe,
-  Calendar,
   Star,
   Save,
-  Users,
   MessageCircle,
   Phone,
   Mail,
   Eye,
-  Plus,
-  Trash2,
-  Edit,
-  Copy,
-  Download,
   Bookmark,
   Target,
-  TrendingUp,
-  Clock,
   CheckCircle,
-  AlertCircle,
-  Info,
-  ChevronDown,
-  ChevronUp,
   Sliders,
   RefreshCw
 } from 'lucide-react';
 import { EnhancedCandidateSearch as EnhancedCandidateSearchType, SavedSearch, TalentPool, SearchResult } from '../../types/premium';
 import { getAllJobTitles, getJobCategories, getJobTitlesByCategory } from '../../utils/jobData';
-import { getAllCountries, getRegionsByCountry, getCitiesByRegion } from '../../utils/globalData';
-import { getAllLanguages } from '../../utils/languageData';
+import { getAllCountries, getAllCities } from '../../utils/globalData';
 
 interface EnhancedCandidateSearchProps {
   isAdmin: boolean;
@@ -79,7 +57,6 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
   });
 
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [showPremiumFilters, setShowPremiumFilters] = useState(false);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [talentPools, setTalentPools] = useState<TalentPool[]>([]);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -218,19 +195,41 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Enhanced Candidate Search</h2>
-            <p className="text-sm text-gray-600">
-              {isPremium ? 'Premium Search with Advanced Filters' : 'Basic Search Available'}
+            <h2 className="text-2xl font-bold text-gray-900">Enhanced Candidate Search</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {isPremium ? 'Premium Search with Advanced Filters & AI Recommendations' : 'Basic Search Available'}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {savedSearches.length > 0 && (
+              <div className="relative">
+                <select
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      const search = savedSearches.find(s => s.id === e.target.value);
+                      if (search) {
+                        setSearchCriteria(search.searchCriteria);
+                      }
+                    }
+                  }}
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                >
+                  <option value="">Load Saved Search</option>
+                  {savedSearches.map(search => (
+                    <option key={search.id} value={search.id}>
+                      {search.name} ({search.resultCount} results)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             {isPremium && (
               <button
                 onClick={handleSaveSearch}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <Save className="w-4 h-4" />
                 Save Search
@@ -238,7 +237,7 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
             )}
             <button
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Sliders className="w-4 h-4" />
               {showAdvancedFilters ? 'Hide' : 'Show'} Filters
@@ -251,8 +250,8 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
       <div className="p-6">
         {/* Basic Search */}
         <div className="mb-6">
-          <div className="flex gap-4">
-            <div className="flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Keywords (Job titles, skills, certifications, tools)
               </label>
@@ -261,10 +260,10 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                 value={searchCriteria.keywords}
                 onChange={(e) => setSearchCriteria(prev => ({ ...prev, keywords: e.target.value }))}
                 placeholder="e.g., React Developer, AWS, PMP Certification"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            <div className="w-48">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Experience Range
               </label>
@@ -277,7 +276,7 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                     experienceRange: { min, max: max || 20 }
                   }));
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 {experienceOptions.map(option => (
                   <option key={option.value} value={option.value}>
@@ -286,14 +285,14 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                 ))}
               </select>
             </div>
-            <div className="w-48">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Industry
               </label>
               <select
                 value={searchCriteria.industry}
                 onChange={(e) => setSearchCriteria(prev => ({ ...prev, industry: e.target.value }))}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">All Industries</option>
                 <option value="technology">Technology</option>
@@ -301,6 +300,14 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                 <option value="healthcare">Healthcare</option>
                 <option value="manufacturing">Manufacturing</option>
                 <option value="retail">Retail</option>
+                <option value="education">Education</option>
+                <option value="consulting">Consulting</option>
+                <option value="media">Media & Entertainment</option>
+                <option value="real-estate">Real Estate</option>
+                <option value="transportation">Transportation</option>
+                <option value="energy">Energy</option>
+                <option value="government">Government</option>
+                <option value="non-profit">Non-profit</option>
               </select>
             </div>
           </div>
@@ -315,25 +322,32 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Current City
                 </label>
-                <input
-                  type="text"
+                <select
                   value={searchCriteria.currentCity}
                   onChange={(e) => setSearchCriteria(prev => ({ ...prev, currentCity: e.target.value }))}
-                  placeholder="e.g., Dar es Salaam"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                >
+                  <option value="">Select Current City</option>
+                  {getAllCities().map(city => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Preferred Location
                 </label>
-                <input
-                  type="text"
+                <select
                   value={searchCriteria.preferredLocation}
                   onChange={(e) => setSearchCriteria(prev => ({ ...prev, preferredLocation: e.target.value }))}
-                  placeholder="e.g., Remote, Nairobi"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                >
+                  <option value="">Select Preferred Location</option>
+                  <option value="Remote">Remote</option>
+                  {getAllCities().map(city => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </select>
               </div>
               <div className="flex items-center">
                 <label className="flex items-center">
@@ -360,45 +374,72 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                     ...prev,
                     education: { ...prev.education, degree: e.target.value }
                   }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Any Degree</option>
                   <option value="high-school">High School</option>
-                  <option value="bachelor">Bachelor's</option>
-                  <option value="master">Master's</option>
+                  <option value="diploma">Diploma</option>
+                  <option value="bachelor">Bachelor's Degree</option>
+                  <option value="master">Master's Degree</option>
                   <option value="phd">PhD</option>
-                  <option value="certification">Certification</option>
+                  <option value="certification">Professional Certification</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Specialization
                 </label>
-                <input
-                  type="text"
+                <select
                   value={searchCriteria.education.specialization}
                   onChange={(e) => setSearchCriteria(prev => ({
                     ...prev,
                     education: { ...prev.education, specialization: e.target.value }
                   }))}
-                  placeholder="e.g., Computer Science"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Any Specialization</option>
+                  <option value="computer-science">Computer Science</option>
+                  <option value="information-technology">Information Technology</option>
+                  <option value="business-administration">Business Administration</option>
+                  <option value="engineering">Engineering</option>
+                  <option value="medicine">Medicine</option>
+                  <option value="law">Law</option>
+                  <option value="education">Education</option>
+                  <option value="finance">Finance</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="human-resources">Human Resources</option>
+                  <option value="accounting">Accounting</option>
+                  <option value="economics">Economics</option>
+                  <option value="psychology">Psychology</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   University/Institute
                 </label>
-                <input
-                  type="text"
+                <select
                   value={searchCriteria.education.university}
                   onChange={(e) => setSearchCriteria(prev => ({
                     ...prev,
                     education: { ...prev.education, university: e.target.value }
                   }))}
-                  placeholder="e.g., University of Dar es Salaam"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Any University</option>
+                  <option value="university-of-dar-es-salaam">University of Dar es Salaam</option>
+                  <option value="ardhi-university">Ardhi University</option>
+                  <option value="muhimbili-university">Muhimbili University</option>
+                  <option value="sokoine-university">Sokoine University</option>
+                  <option value="university-of-dodoma">University of Dodoma</option>
+                  <option value="open-university">Open University of Tanzania</option>
+                  <option value="university-of-nairobi">University of Nairobi</option>
+                  <option value="strathmore-university">Strathmore University</option>
+                  <option value="makerere-university">Makerere University</option>
+                  <option value="university-of-cape-town">University of Cape Town</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
             </div>
 
@@ -420,21 +461,31 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Employment Type
                 </label>
-                <select
-                  multiple
-                  value={searchCriteria.employmentType}
-                  onChange={(e) => {
-                    const selected = Array.from(e.target.selectedOptions, option => option.value);
-                    setSearchCriteria(prev => ({ ...prev, employmentType: selected as any[] }));
-                  }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
+                <div className="space-y-2">
                   {employmentTypeOptions.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
+                    <label key={option.value} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={searchCriteria.employmentType.includes(option.value as any)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSearchCriteria(prev => ({
+                              ...prev,
+                              employmentType: [...prev.employmentType, option.value as any]
+                            }));
+                          } else {
+                            setSearchCriteria(prev => ({
+                              ...prev,
+                              employmentType: prev.employmentType.filter(type => type !== option.value)
+                            }));
+                          }
+                        }}
+                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm text-gray-700">{option.label}</span>
+                    </label>
                   ))}
-                </select>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -520,13 +571,16 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Nationality
                     </label>
-                    <input
-                      type="text"
+                    <select
                       value={searchCriteria.nationality}
                       onChange={(e) => setSearchCriteria(prev => ({ ...prev, nationality: e.target.value }))}
-                      placeholder="e.g., Tanzanian, Kenyan"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Any Nationality</option>
+                      {getAllCountries().map(country => (
+                        <option key={country} value={country}>{country}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
@@ -578,17 +632,17 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
         )}
 
         {/* Search Button */}
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between pt-6 border-t border-gray-200 bg-gray-50 -mx-6 px-6 py-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={handleSearch}
               disabled={isSearching}
-              className="flex items-center gap-2 px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="flex items-center gap-2 px-8 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
             >
               {isSearching ? (
-                <RefreshCw className="w-4 h-4 animate-spin" />
+                <RefreshCw className="w-5 h-5 animate-spin" />
               ) : (
-                <Search className="w-4 h-4" />
+                <Search className="w-5 h-5" />
               )}
               {isSearching ? 'Searching...' : 'Search Candidates'}
             </button>
@@ -616,16 +670,16 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                 gender: undefined,
                 nationality: ''
               })}
-              className="px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
             >
               Clear All
             </button>
           </div>
           
           {isPremium && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Premium Search Active</span>
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <span className="text-sm text-green-700 font-medium">Premium Search Active</span>
             </div>
           )}
         </div>
