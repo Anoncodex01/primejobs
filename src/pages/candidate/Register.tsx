@@ -18,8 +18,13 @@ const CandidateRegister: FC = () => {
     lastName: '',
     email: '',
     phone: '',
+    countryCode: '+255',
+    origin: '',
+    medicalCondition: '',
+    impairment: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    acceptTerms: false
   });
   
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +32,31 @@ const CandidateRegister: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const countryCodes = [
+    { code: '+255', country: 'Tanzania' },
+    { code: '+254', country: 'Kenya' },
+    { code: '+256', country: 'Uganda' },
+    { code: '+250', country: 'Rwanda' },
+    { code: '+1', country: 'United States' },
+    { code: '+44', country: 'United Kingdom' },
+    { code: '+49', country: 'Germany' },
+    { code: '+33', country: 'France' },
+    { code: '+61', country: 'Australia' },
+    { code: '+91', country: 'India' },
+    { code: '+86', country: 'China' },
+    { code: '+27', country: 'South Africa' },
+    { code: '+234', country: 'Nigeria' },
+    { code: '+20', country: 'Egypt' }
+  ];
+
+  const origins = [
+    'Tanzania', 'Kenya', 'Uganda', 'Rwanda', 'Burundi', 'South Sudan',
+    'United States', 'United Kingdom', 'Germany', 'France', 'Australia',
+    'India', 'China', 'South Africa', 'Nigeria', 'Egypt', 'Ghana',
+    'Ethiopia', 'Morocco', 'Other'
+  ];
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -73,6 +102,14 @@ const CandidateRegister: FC = () => {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (!formData.origin) {
+      newErrors.origin = 'Origin is required';
+    }
+
+    if (!formData.acceptTerms) {
+      newErrors.acceptTerms = 'You must accept the terms and conditions';
     }
 
     setErrors(newErrors);
@@ -209,14 +246,26 @@ const CandidateRegister: FC = () => {
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                 Phone Number *
               </label>
-              <div className="mt-1">
+              <div className="mt-1 flex">
+                <select
+                  name="countryCode"
+                  value={formData.countryCode}
+                  onChange={handleInputChange}
+                  className="appearance-none block w-24 px-3 py-2 border border-gray-300 rounded-l-md shadow-sm focus:outline-none focus:ring-[#114373] focus:border-[#114373] bg-gray-50"
+                >
+                  {countryCodes.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.code}
+                    </option>
+                  ))}
+                </select>
                 <input
                   type="tel"
                   id="phone"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#114373] focus:border-[#114373] ${
+                  className={`appearance-none block flex-1 px-3 py-2 border border-l-0 rounded-r-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#114373] focus:border-[#114373] ${
                     errors.phone ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter your phone number"
@@ -225,6 +274,70 @@ const CandidateRegister: FC = () => {
               {errors.phone && (
                 <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
               )}
+            </div>
+
+            {/* Origin Field */}
+            <div>
+              <label htmlFor="origin" className="block text-sm font-medium text-gray-700">
+                Origin *
+              </label>
+              <div className="mt-1">
+                <select
+                  id="origin"
+                  name="origin"
+                  value={formData.origin}
+                  onChange={handleInputChange}
+                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[#114373] focus:border-[#114373] ${
+                    errors.origin ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Select your origin</option>
+                  {origins.map((origin) => (
+                    <option key={origin} value={origin}>
+                      {origin}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {errors.origin && (
+                <p className="mt-1 text-sm text-red-600">{errors.origin}</p>
+              )}
+            </div>
+
+            {/* Medical Condition Field */}
+            <div>
+              <label htmlFor="medicalCondition" className="block text-sm font-medium text-gray-700">
+                Any Medical Condition
+              </label>
+              <div className="mt-1">
+                <input
+                  type="text"
+                  id="medicalCondition"
+                  name="medicalCondition"
+                  value={formData.medicalCondition}
+                  onChange={handleInputChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#114373] focus:border-[#114373]"
+                  placeholder="Please specify any medical conditions (optional)"
+                />
+              </div>
+            </div>
+
+            {/* Impairment Field */}
+            <div>
+              <label htmlFor="impairment" className="block text-sm font-medium text-gray-700">
+                Any Impairment
+              </label>
+              <div className="mt-1">
+                <input
+                  type="text"
+                  id="impairment"
+                  name="impairment"
+                  value={formData.impairment}
+                  onChange={handleInputChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#114373] focus:border-[#114373]"
+                  placeholder="Please specify any impairments (optional)"
+                />
+              </div>
             </div>
 
             {/* Password Field */}
@@ -295,6 +408,33 @@ const CandidateRegister: FC = () => {
               )}
             </div>
 
+            {/* Terms and Conditions */}
+            <div>
+              <div className="flex items-center">
+                <input
+                  id="acceptTerms"
+                  name="acceptTerms"
+                  type="checkbox"
+                  checked={formData.acceptTerms}
+                  onChange={(e) => setFormData(prev => ({ ...prev, acceptTerms: e.target.checked }))}
+                  className="h-4 w-4 text-[#114373] focus:ring-[#114373] border-gray-300 rounded"
+                />
+                <label htmlFor="acceptTerms" className="ml-2 block text-sm text-gray-900">
+                  I agree to the{' '}
+                  <a href="#" className="text-[#114373] hover:text-[#0d3559] underline">
+                    Terms and Conditions
+                  </a>{' '}
+                  and{' '}
+                  <a href="#" className="text-[#114373] hover:text-[#0d3559] underline">
+                    Privacy Policy
+                  </a>
+                </label>
+              </div>
+              {errors.acceptTerms && (
+                <p className="mt-1 text-sm text-red-600">{errors.acceptTerms}</p>
+              )}
+            </div>
+
             {/* Submit Error */}
             {errors.submit && (
               <div className="rounded-md bg-red-50 p-4">
@@ -348,9 +488,14 @@ const CandidateRegister: FC = () => {
                     firstName: 'John',
                     lastName: 'Doe',
                     email: 'john.doe@demo.com',
-                    phone: '+1 (555) 123-4567',
+                    phone: '123456789',
+                    countryCode: '+255',
+                    origin: 'Tanzania',
+                    medicalCondition: '',
+                    impairment: '',
                     password: 'demo123',
-                    confirmPassword: 'demo123'
+                    confirmPassword: 'demo123',
+                    acceptTerms: true
                   });
                 }}
                 className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 text-sm"
@@ -364,9 +509,14 @@ const CandidateRegister: FC = () => {
                     firstName: 'Sarah',
                     lastName: 'Johnson',
                     email: 'sarah.johnson@demo.com',
-                    phone: '+1 (555) 987-6543',
+                    phone: '987654321',
+                    countryCode: '+254',
+                    origin: 'Kenya',
+                    medicalCondition: '',
+                    impairment: '',
                     password: 'demo123',
-                    confirmPassword: 'demo123'
+                    confirmPassword: 'demo123',
+                    acceptTerms: true
                   });
                 }}
                 className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 text-sm"

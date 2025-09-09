@@ -9,14 +9,15 @@ import {
   User,
   Calendar,
   Clock,
-  Building
+  Building,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
-import { InterviewEvaluation } from '../../types/employer';
 
 interface InterviewEvaluationFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (evaluation: Omit<InterviewEvaluation, 'id' | 'evaluatedBy' | 'evaluatedAt'>) => void;
+  onSave: (evaluation: any) => void;
   candidateId: string;
   jobId: string;
   candidateName?: string;
@@ -35,31 +36,98 @@ const InterviewEvaluationForm: React.FC<InterviewEvaluationFormProps> = ({
   interviewDate = ''
 }) => {
   const [formData, setFormData] = useState({
+    // Basic Information
+    candidateName: candidateName,
+    jobTitle: jobTitle,
     interviewerName: '',
     interviewDate: interviewDate,
-    interviewMode: 'online' as 'online' | 'physical',
+    interviewTime: '',
+    interviewMode: 'online' as 'online' | 'physical' | 'hybrid',
+    interviewDuration: '',
     
-    // Ratings (Above/Satisfactory/Below/Unsatisfactory)
-    technicalSkills: '' as 'above' | 'satisfactory' | 'below' | 'unsatisfactory',
-    communication: '' as 'above' | 'satisfactory' | 'below' | 'unsatisfactory',
-    leadership: '' as 'above' | 'satisfactory' | 'below' | 'unsatisfactory',
-    culturalFit: '' as 'above' | 'satisfactory' | 'below' | 'unsatisfactory',
-    overallRating: '' as 'above' | 'satisfactory' | 'below' | 'unsatisfactory',
+    // Candidate Information
+    candidateEmail: '',
+    candidatePhone: '',
+    currentPosition: '',
+    currentCompany: '',
+    yearsOfExperience: '',
     
-    // Comments
+    // Technical Assessment (1-5 scale)
+    technicalKnowledge: 0,
+    problemSolving: 0,
+    codingSkills: 0,
+    systemDesign: 0,
+    technicalCommunication: 0,
+    
+    // Soft Skills Assessment (1-5 scale)
+    communicationSkills: 0,
+    leadership: 0,
+    teamwork: 0,
+    adaptability: 0,
+    timeManagement: 0,
+    culturalFit: 0,
+    
+    // Behavioral Assessment
+    motivation: 0,
+    workEthic: 0,
+    learningAbility: 0,
+    stressManagement: 0,
+    conflictResolution: 0,
+    
+    // Overall Ratings
+    overallTechnicalRating: 0,
+    overallSoftSkillsRating: 0,
+    overallBehavioralRating: 0,
+    overallRating: 0,
+    
+    // Detailed Comments
+    technicalStrengths: '',
+    technicalWeaknesses: '',
+    softSkillsStrengths: '',
+    softSkillsWeaknesses: '',
+    behavioralObservations: '',
+    specificExamples: '',
+    
+    // Interview Questions & Answers
+    question1: '',
+    answer1: '',
+    question2: '',
+    answer2: '',
+    question3: '',
+    answer3: '',
+    question4: '',
+    answer4: '',
+    question5: '',
+    answer5: '',
+    
+    // Candidate Questions
+    candidateQuestions: '',
+    candidateInterest: '',
+    
+    // Final Assessment
     strengths: '',
-    weaknesses: '',
-    comments: '',
+    areasForImprovement: '',
+    additionalComments: '',
+    salaryExpectations: '',
+    availability: '',
+    noticePeriod: '',
     
-    // Final recommendation
-    recommendation: '' as 'rejected' | 'can_be_considered' | 'recommended' | 'strongly_recommended'
+    // Recommendation
+    recommendation: '' as 'strongly_recommended' | 'recommended' | 'can_be_considered' | 'not_recommended',
+    recommendationReason: '',
+    
+    // Next Steps
+    nextSteps: '',
+    followUpRequired: false,
+    followUpNotes: ''
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [currentSection, setCurrentSection] = useState(1);
+  const totalSections = 6;
 
-  const handleInputChange = (field: string, value: string | number) => {
+  const handleInputChange = (field: string, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -68,65 +136,53 @@ const InterviewEvaluationForm: React.FC<InterviewEvaluationFormProps> = ({
   const handleRatingChange = (field: string, rating: number) => {
     setFormData(prev => ({ ...prev, [field]: rating }));
     
-    // Auto-calculate overall rating as average of other ratings
-    if (field !== 'overallRating') {
-      const ratings = {
-        technicalSkills: field === 'technicalSkills' ? rating : formData.technicalSkills,
-        communication: field === 'communication' ? rating : formData.communication,
-        culturalFit: field === 'culturalFit' ? rating : formData.culturalFit
-      };
-      
-      const validRatings = Object.values(ratings).filter(r => r > 0);
-      if (validRatings.length > 0) {
-        const average = Math.round(validRatings.reduce((sum, r) => sum + r, 0) / validRatings.length);
-        setFormData(prev => ({ ...prev, overallRating: average }));
-      }
+    // Auto-calculate overall ratings
+    if (field.startsWith('technical')) {
+      const technicalFields = ['technicalKnowledge', 'problemSolving', 'codingSkills', 'systemDesign', 'technicalCommunication'];
+      const technicalRatings = technicalFields.map(f => f === field ? rating : formData[f as keyof typeof formData] as number);
+      const avgTechnical = Math.round(technicalRatings.reduce((sum, r) => sum + r, 0) / technicalRatings.length);
+      setFormData(prev => ({ ...prev, overallTechnicalRating: avgTechnical }));
     }
+    
+    if (field.startsWith('communication') || field.startsWith('leadership') || field.startsWith('teamwork') || 
+        field.startsWith('adaptability') || field.startsWith('timeManagement') || field.startsWith('culturalFit')) {
+      const softSkillsFields = ['communicationSkills', 'leadership', 'teamwork', 'adaptability', 'timeManagement', 'culturalFit'];
+      const softSkillsRatings = softSkillsFields.map(f => f === field ? rating : formData[f as keyof typeof formData] as number);
+      const avgSoftSkills = Math.round(softSkillsRatings.reduce((sum, r) => sum + r, 0) / softSkillsRatings.length);
+      setFormData(prev => ({ ...prev, overallSoftSkillsRating: avgSoftSkills }));
+    }
+    
+    if (field.startsWith('motivation') || field.startsWith('workEthic') || field.startsWith('learningAbility') || 
+        field.startsWith('stressManagement') || field.startsWith('conflictResolution')) {
+      const behavioralFields = ['motivation', 'workEthic', 'learningAbility', 'stressManagement', 'conflictResolution'];
+      const behavioralRatings = behavioralFields.map(f => f === field ? rating : formData[f as keyof typeof formData] as number);
+      const avgBehavioral = Math.round(behavioralRatings.reduce((sum, r) => sum + r, 0) / behavioralRatings.length);
+      setFormData(prev => ({ ...prev, overallBehavioralRating: avgBehavioral }));
+    }
+    
+    // Calculate overall rating
+    const overallTechnical = formData.overallTechnicalRating || 0;
+    const overallSoftSkills = formData.overallSoftSkillsRating || 0;
+    const overallBehavioral = formData.overallBehavioralRating || 0;
+    const overallAvg = Math.round((overallTechnical + overallSoftSkills + overallBehavioral) / 3);
+    setFormData(prev => ({ ...prev, overallRating: overallAvg }));
   };
 
-         const validateForm = () => {
-         const newErrors: Record<string, string> = {};
-     
-         if (!formData.interviewerName.trim()) {
-           newErrors.interviewerName = 'Interviewer name is required';
-         }
-     
-         if (!formData.interviewDate) {
-           newErrors.interviewDate = 'Interview date is required';
-         }
-     
-         if (!formData.technicalSkills) {
-           newErrors.technicalSkills = 'Technical skills rating is required';
-         }
-     
-         if (!formData.communication) {
-           newErrors.communication = 'Communication rating is required';
-         }
-     
-         if (!formData.leadership) {
-           newErrors.leadership = 'Leadership rating is required';
-         }
-     
-         if (!formData.culturalFit) {
-           newErrors.culturalFit = 'Cultural fit rating is required';
-         }
-
-    if (!formData.strengths.trim()) {
-      newErrors.strengths = 'Strengths are required';
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!formData.interviewerName.trim()) {
+      newErrors.interviewerName = 'Interviewer name is required';
     }
-
-    if (!formData.weaknesses.trim()) {
-      newErrors.weaknesses = 'Weaknesses are required';
+    
+    if (!formData.interviewDate) {
+      newErrors.interviewDate = 'Interview date is required';
     }
-
-    if (!formData.comments.trim()) {
-      newErrors.comments = 'Comments are required';
-    }
-
+    
     if (!formData.recommendation) {
       newErrors.recommendation = 'Final recommendation is required';
     }
-
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -135,78 +191,520 @@ const InterviewEvaluationForm: React.FC<InterviewEvaluationFormProps> = ({
     e.preventDefault();
     
     if (validateForm()) {
-                 const evaluation: Omit<InterviewEvaluation, 'id' | 'evaluatedBy' | 'evaluatedAt'> = {
-             candidateId,
-             jobId,
-             interviewerName: formData.interviewerName,
-             interviewDate: formData.interviewDate,
-             interviewMode: formData.interviewMode,
-             technicalSkills: formData.technicalSkills,
-             communication: formData.communication,
-             leadership: formData.leadership,
-             culturalFit: formData.culturalFit,
-             overallRating: formData.overallRating,
-             strengths: formData.strengths,
-             weaknesses: formData.weaknesses,
-             comments: formData.comments,
-             recommendation: formData.recommendation,
-             isSubmittedToClient: false
-           };
-
-      onSave(evaluation);
+      onSave(formData);
       onClose();
-      
-      // Reset form
-      setFormData({
-        interviewerName: '',
-        interviewDate: interviewDate,
-        interviewMode: 'online',
-        technicalSkills: 0,
-        communication: 0,
-        culturalFit: 0,
-        overallRating: 0,
-        strengths: '',
-        weaknesses: '',
-        comments: '',
-        recommendation: '' as any
-      });
-      setErrors({});
     }
   };
 
-  const generatePDF = () => {
-    // This would integrate with a PDF generation library
-    // For now, we'll just show a success message
-    alert('PDF generation would be implemented here with a library like jsPDF or similar');
+  const renderRatingStars = (field: string, value: number) => {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => handleRatingChange(field, star)}
+            className="p-1"
+          >
+            <Star
+              className={`w-5 h-5 ${
+                star <= value
+                  ? 'text-yellow-400 fill-current'
+                  : 'text-gray-300'
+              }`}
+            />
+          </button>
+        ))}
+        <span className="ml-2 text-sm text-gray-600">
+          {value > 0 ? `${value}/5` : 'Not rated'}
+        </span>
+      </div>
+    );
   };
 
-         const RatingSelect: React.FC<{
-         rating: string;
-         onRatingChange: (rating: 'above' | 'satisfactory' | 'below' | 'unsatisfactory') => void;
-         error?: string;
-       }> = ({ rating, onRatingChange, error }) => (
-         <div>
-           <select
-             value={rating}
-             onChange={(e) => onRatingChange(e.target.value as any)}
-             className={`w-full px-3 py-2 border rounded-lg focus:ring-[#114373] focus:border-[#114373] ${
-               error ? 'border-red-500' : 'border-gray-300'
-             }`}
-           >
-             <option value="">Select rating</option>
-             <option value="above">Above</option>
-             <option value="satisfactory">Satisfactory</option>
-             <option value="below">Below</option>
-             <option value="unsatisfactory">Unsatisfactory</option>
-           </select>
-           {error && (
-             <p className="mt-1 text-sm text-red-600 flex items-center">
-               <AlertCircle className="w-4 h-4 mr-1" />
-               {error}
-             </p>
-           )}
-         </div>
-       );
+  const renderSection = () => {
+    switch (currentSection) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Candidate Name</label>
+                <input
+                  type="text"
+                  value={formData.candidateName}
+                  onChange={(e) => handleInputChange('candidateName', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                <input
+                  type="text"
+                  value={formData.jobTitle}
+                  onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Interviewer Name *</label>
+                <input
+                  type="text"
+                  value={formData.interviewerName}
+                  onChange={(e) => handleInputChange('interviewerName', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+                {errors.interviewerName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.interviewerName}</p>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Interview Date *</label>
+                <input
+                  type="date"
+                  value={formData.interviewDate}
+                  onChange={(e) => handleInputChange('interviewDate', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+                {errors.interviewDate && (
+                  <p className="text-red-500 text-sm mt-1">{errors.interviewDate}</p>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Interview Time</label>
+                <input
+                  type="time"
+                  value={formData.interviewTime}
+                  onChange={(e) => handleInputChange('interviewTime', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Interview Mode</label>
+                <select
+                  value={formData.interviewMode}
+                  onChange={(e) => handleInputChange('interviewMode', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="online">Online</option>
+                  <option value="physical">Physical</option>
+                  <option value="hybrid">Hybrid</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Interview Duration</label>
+                <input
+                  type="text"
+                  value={formData.interviewDuration}
+                  onChange={(e) => handleInputChange('interviewDuration', e.target.value)}
+                  placeholder="e.g., 45 minutes"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+          </div>
+        );
+        
+      case 2:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900">Technical Assessment</h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Technical Knowledge</label>
+                {renderRatingStars('technicalKnowledge', formData.technicalKnowledge)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Problem Solving</label>
+                {renderRatingStars('problemSolving', formData.problemSolving)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Coding Skills</label>
+                {renderRatingStars('codingSkills', formData.codingSkills)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">System Design</label>
+                {renderRatingStars('systemDesign', formData.systemDesign)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Technical Communication</label>
+                {renderRatingStars('technicalCommunication', formData.technicalCommunication)}
+              </div>
+              
+              <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                <label className="text-sm font-semibold text-gray-900">Overall Technical Rating</label>
+                <div className="flex items-center gap-2">
+                  {renderRatingStars('overallTechnicalRating', formData.overallTechnicalRating)}
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Technical Strengths</label>
+                <textarea
+                  value={formData.technicalStrengths}
+                  onChange={(e) => handleInputChange('technicalStrengths', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="List technical strengths observed..."
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Technical Weaknesses</label>
+                <textarea
+                  value={formData.technicalWeaknesses}
+                  onChange={(e) => handleInputChange('technicalWeaknesses', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="List technical areas for improvement..."
+                />
+              </div>
+            </div>
+          </div>
+        );
+        
+      case 3:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900">Soft Skills Assessment</h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Communication Skills</label>
+                {renderRatingStars('communicationSkills', formData.communicationSkills)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Leadership</label>
+                {renderRatingStars('leadership', formData.leadership)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Teamwork</label>
+                {renderRatingStars('teamwork', formData.teamwork)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Adaptability</label>
+                {renderRatingStars('adaptability', formData.adaptability)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Time Management</label>
+                {renderRatingStars('timeManagement', formData.timeManagement)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Cultural Fit</label>
+                {renderRatingStars('culturalFit', formData.culturalFit)}
+              </div>
+              
+              <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                <label className="text-sm font-semibold text-gray-900">Overall Soft Skills Rating</label>
+                <div className="flex items-center gap-2">
+                  {renderRatingStars('overallSoftSkillsRating', formData.overallSoftSkillsRating)}
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Soft Skills Strengths</label>
+                <textarea
+                  value={formData.softSkillsStrengths}
+                  onChange={(e) => handleInputChange('softSkillsStrengths', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="List soft skills strengths observed..."
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Soft Skills Weaknesses</label>
+                <textarea
+                  value={formData.softSkillsWeaknesses}
+                  onChange={(e) => handleInputChange('softSkillsWeaknesses', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="List soft skills areas for improvement..."
+                />
+              </div>
+            </div>
+          </div>
+        );
+        
+      case 4:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900">Behavioral Assessment</h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Motivation</label>
+                {renderRatingStars('motivation', formData.motivation)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Work Ethic</label>
+                {renderRatingStars('workEthic', formData.workEthic)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Learning Ability</label>
+                {renderRatingStars('learningAbility', formData.learningAbility)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Stress Management</label>
+                {renderRatingStars('stressManagement', formData.stressManagement)}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">Conflict Resolution</label>
+                {renderRatingStars('conflictResolution', formData.conflictResolution)}
+              </div>
+              
+              <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                <label className="text-sm font-semibold text-gray-900">Overall Behavioral Rating</label>
+                <div className="flex items-center gap-2">
+                  {renderRatingStars('overallBehavioralRating', formData.overallBehavioralRating)}
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Behavioral Observations</label>
+              <textarea
+                value={formData.behavioralObservations}
+                onChange={(e) => handleInputChange('behavioralObservations', e.target.value)}
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Describe behavioral observations and examples..."
+              />
+            </div>
+          </div>
+        );
+        
+      case 5:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900">Interview Questions & Answers</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Question 1</label>
+                <input
+                  type="text"
+                  value={formData.question1}
+                  onChange={(e) => handleInputChange('question1', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter question asked..."
+                />
+                <textarea
+                  value={formData.answer1}
+                  onChange={(e) => handleInputChange('answer1', e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                  placeholder="Candidate's answer..."
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Question 2</label>
+                <input
+                  type="text"
+                  value={formData.question2}
+                  onChange={(e) => handleInputChange('question2', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter question asked..."
+                />
+                <textarea
+                  value={formData.answer2}
+                  onChange={(e) => handleInputChange('answer2', e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                  placeholder="Candidate's answer..."
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Question 3</label>
+                <input
+                  type="text"
+                  value={formData.question3}
+                  onChange={(e) => handleInputChange('question3', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter question asked..."
+                />
+                <textarea
+                  value={formData.answer3}
+                  onChange={(e) => handleInputChange('answer3', e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                  placeholder="Candidate's answer..."
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Candidate Questions</label>
+              <textarea
+                value={formData.candidateQuestions}
+                onChange={(e) => handleInputChange('candidateQuestions', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Questions asked by the candidate..."
+              />
+            </div>
+          </div>
+        );
+        
+      case 6:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900">Final Assessment & Recommendation</h3>
+            
+            <div className="flex items-center justify-between bg-blue-50 p-4 rounded-lg">
+              <label className="text-lg font-semibold text-gray-900">Overall Rating</label>
+              <div className="flex items-center gap-2">
+                {renderRatingStars('overallRating', formData.overallRating)}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Strengths</label>
+                <textarea
+                  value={formData.strengths}
+                  onChange={(e) => handleInputChange('strengths', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Key strengths of the candidate..."
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Areas for Improvement</label>
+                <textarea
+                  value={formData.areasForImprovement}
+                  onChange={(e) => handleInputChange('areasForImprovement', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Areas where the candidate can improve..."
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Additional Comments</label>
+              <textarea
+                value={formData.additionalComments}
+                onChange={(e) => handleInputChange('additionalComments', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Any additional observations or comments..."
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Salary Expectations</label>
+                <input
+                  type="text"
+                  value={formData.salaryExpectations}
+                  onChange={(e) => handleInputChange('salaryExpectations', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., $50,000 - $60,000"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
+                <input
+                  type="text"
+                  value={formData.availability}
+                  onChange={(e) => handleInputChange('availability', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., 2 weeks notice"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Notice Period</label>
+                <input
+                  type="text"
+                  value={formData.noticePeriod}
+                  onChange={(e) => handleInputChange('noticePeriod', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., 30 days"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Final Recommendation *</label>
+              <select
+                value={formData.recommendation}
+                onChange={(e) => handleInputChange('recommendation', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">Select Recommendation</option>
+                <option value="strongly_recommended">Strongly Recommended</option>
+                <option value="recommended">Recommended</option>
+                <option value="can_be_considered">Can be Considered</option>
+                <option value="not_recommended">Not Recommended</option>
+              </select>
+              {errors.recommendation && (
+                <p className="text-red-500 text-sm mt-1">{errors.recommendation}</p>
+              )}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Recommendation Reason</label>
+              <textarea
+                value={formData.recommendationReason}
+                onChange={(e) => handleInputChange('recommendationReason', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Explain the reasoning behind your recommendation..."
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Next Steps</label>
+              <textarea
+                value={formData.nextSteps}
+                onChange={(e) => handleInputChange('nextSteps', e.target.value)}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="What are the next steps for this candidate?"
+              />
+            </div>
+          </div>
+        );
+        
+      default:
+        return null;
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -216,270 +714,66 @@ const InterviewEvaluationForm: React.FC<InterviewEvaluationFormProps> = ({
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-semibold text-gray-900">Interview Evaluation Form</h3>
-              <p className="text-sm text-gray-600 mt-1">
-                {candidateName && `Candidate: ${candidateName}`} {jobTitle && `• ${jobTitle}`}
-              </p>
+              <h2 className="text-xl font-semibold text-gray-900">Interview Evaluation Form</h2>
+              <p className="text-sm text-gray-600">Comprehensive candidate assessment</p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="p-2 text-gray-400 hover:text-gray-600"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
+          
+          {/* Progress Bar */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+              <span>Section {currentSection} of {totalSections}</span>
+              <span>{Math.round((currentSection / totalSections) * 100)}% Complete</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(currentSection / totalSections) * 100}%` }}
+              ></div>
+            </div>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Header Information */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-3">Interview Information</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <User className="w-4 h-4 inline mr-2" />
-                  Interviewer Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.interviewerName}
-                  onChange={(e) => handleInputChange('interviewerName', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-[#114373] focus:border-[#114373] ${
-                    errors.interviewerName ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter interviewer name"
-                />
-                {errors.interviewerName && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center">
-                    <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.interviewerName}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Calendar className="w-4 h-4 inline mr-2" />
-                  Interview Date
-                </label>
-                <input
-                  type="date"
-                  value={formData.interviewDate}
-                  onChange={(e) => handleInputChange('interviewDate', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-[#114373] focus:border-[#114373] ${
-                    errors.interviewDate ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {errors.interviewDate && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center">
-                    <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.interviewDate}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Interview Mode
-                </label>
-                <select
-                  value={formData.interviewMode}
-                  onChange={(e) => handleInputChange('interviewMode', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#114373] focus:border-[#114373]"
+        <form onSubmit={handleSubmit} className="p-6">
+          {renderSection()}
+          
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+            <div className="flex gap-3">
+              {currentSection > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setCurrentSection(currentSection - 1)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
-                  <option value="online">Online</option>
-                  <option value="physical">Physical</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Ratings Section */}
-          <div className="space-y-6">
-            <h4 className="font-medium text-gray-900">Candidate Assessment</h4>
-            
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Technical Skills
-                </label>
-                <RatingSelect
-                  rating={formData.technicalSkills}
-                  onRatingChange={(rating) => handleInputChange('technicalSkills', rating)}
-                  error={errors.technicalSkills}
-                />
-              </div>
-     
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Communication Skills
-                </label>
-                <RatingSelect
-                  rating={formData.communication}
-                  onRatingChange={(rating) => handleInputChange('communication', rating)}
-                  error={errors.communication}
-                />
-              </div>
-     
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Leadership
-                </label>
-                <RatingSelect
-                  rating={formData.leadership}
-                  onRatingChange={(rating) => handleInputChange('leadership', rating)}
-                  error={errors.leadership}
-                />
-              </div>
-     
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Cultural Fit & Attitude
-                </label>
-                <RatingSelect
-                  rating={formData.culturalFit}
-                  onRatingChange={(rating) => handleInputChange('culturalFit', rating)}
-                  error={errors.culturalFit}
-                />
-              </div>
-     
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Overall Rating
-                </label>
-                <RatingSelect
-                  rating={formData.overallRating}
-                  onRatingChange={(rating) => handleInputChange('overallRating', rating)}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Based on overall assessment
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Comments Section */}
-          <div className="space-y-4">
-            <h4 className="font-medium text-gray-900">Detailed Assessment</h4>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Key Strengths
-              </label>
-              <textarea
-                value={formData.strengths}
-                onChange={(e) => handleInputChange('strengths', e.target.value)}
-                rows={3}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-[#114373] focus:border-[#114373] ${
-                  errors.strengths ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Describe the candidate's key strengths and positive attributes..."
-              />
-              {errors.strengths && (
-                <p className="mt-1 text-sm text-red-600 flex items-center">
-                  <AlertCircle className="w-4 h-4 mr-1" />
-                  {errors.strengths}
-                </p>
+                  Previous
+                </button>
               )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Areas for Improvement
-              </label>
-              <textarea
-                value={formData.weaknesses}
-                onChange={(e) => handleInputChange('weaknesses', e.target.value)}
-                rows={3}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-[#114373] focus:border-[#114373] ${
-                  errors.weaknesses ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Describe areas where the candidate could improve..."
-              />
-              {errors.weaknesses && (
-                <p className="mt-1 text-sm text-red-600 flex items-center">
-                  <AlertCircle className="w-4 h-4 mr-1" />
-                  {errors.weaknesses}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Additional Comments
-              </label>
-              <textarea
-                value={formData.comments}
-                onChange={(e) => handleInputChange('comments', e.target.value)}
-                rows={4}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-[#114373] focus:border-[#114373] ${
-                  errors.comments ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Any additional observations, concerns, or recommendations..."
-              />
-              {errors.comments && (
-                <p className="mt-1 text-sm text-red-600 flex items-center">
-                  <AlertCircle className="w-4 h-4 mr-1" />
-                  {errors.comments}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Final Recommendation */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Final Recommendation
-            </label>
-            <select
-              value={formData.recommendation}
-              onChange={(e) => handleInputChange('recommendation', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-[#114373] focus:border-[#114373] ${
-                errors.recommendation ? 'border-red-500' : 'border-gray-300'
-              }`}
-            >
-              <option value="">Select recommendation</option>
-              <option value="strongly_recommended">Strongly Recommended</option>
-              <option value="recommended">Recommended</option>
-              <option value="can_be_considered">Can be Considered</option>
-              <option value="rejected">Rejected</option>
-            </select>
-            {errors.recommendation && (
-              <p className="mt-1 text-sm text-red-600 flex items-center">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                {errors.recommendation}
-              </p>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={generatePDF}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Generate PDF
-              </button>
             </div>
             
             <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-6 py-2 bg-[#114373] text-white rounded-lg hover:bg-[#0d3559] flex items-center gap-2"
-              >
-                <Save className="w-4 h-4" />
-                Save Evaluation
-              </button>
+              {currentSection < totalSections ? (
+                <button
+                  type="button"
+                  onClick={() => setCurrentSection(currentSection + 1)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Next
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  Save Evaluation
+                </button>
+              )}
             </div>
           </div>
         </form>

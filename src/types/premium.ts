@@ -75,6 +75,7 @@ export interface EnhancedCandidateSearch {
   // Premium Features (Admin Only)
   gender?: 'male' | 'female' | 'other';
   nationality?: string;
+  origin?: string;
   
   // Search Management
   savedSearchId?: string;

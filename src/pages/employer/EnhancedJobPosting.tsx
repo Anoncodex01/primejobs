@@ -293,13 +293,37 @@ const EnhancedJobPosting: FC = () => {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
-                  <input
-                    type="text"
+                  <select
                     value={jobData.title}
                     onChange={(e) => handleInputChange('title', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
-                    placeholder="e.g., Senior Software Engineer"
-                  />
+                  >
+                    <option value="">Select Job Title</option>
+                    <option value="Software Engineer">Software Engineer</option>
+                    <option value="Senior Software Engineer">Senior Software Engineer</option>
+                    <option value="Full Stack Developer">Full Stack Developer</option>
+                    <option value="Frontend Developer">Frontend Developer</option>
+                    <option value="Backend Developer">Backend Developer</option>
+                    <option value="DevOps Engineer">DevOps Engineer</option>
+                    <option value="Data Scientist">Data Scientist</option>
+                    <option value="Data Analyst">Data Analyst</option>
+                    <option value="Product Manager">Product Manager</option>
+                    <option value="Project Manager">Project Manager</option>
+                    <option value="Marketing Manager">Marketing Manager</option>
+                    <option value="Sales Manager">Sales Manager</option>
+                    <option value="HR Manager">HR Manager</option>
+                    <option value="Finance Manager">Finance Manager</option>
+                    <option value="Operations Manager">Operations Manager</option>
+                    <option value="Business Analyst">Business Analyst</option>
+                    <option value="UI/UX Designer">UI/UX Designer</option>
+                    <option value="Graphic Designer">Graphic Designer</option>
+                    <option value="Content Writer">Content Writer</option>
+                    <option value="Accountant">Accountant</option>
+                    <option value="Administrative Assistant">Administrative Assistant</option>
+                    <option value="Customer Service Representative">Customer Service Representative</option>
+                    <option value="Sales Representative">Sales Representative</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
 
                 <div>
@@ -315,13 +339,28 @@ const EnhancedJobPosting: FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <input
-                    type="text"
+                  <select
                     value={jobData.location}
                     onChange={(e) => handleInputChange('location', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
-                    placeholder="e.g., San Francisco, CA"
-                  />
+                  >
+                    <option value="">Select Location</option>
+                    <option value="Dar es Salaam, Tanzania">Dar es Salaam, Tanzania</option>
+                    <option value="Nairobi, Kenya">Nairobi, Kenya</option>
+                    <option value="Kampala, Uganda">Kampala, Uganda</option>
+                    <option value="Kigali, Rwanda">Kigali, Rwanda</option>
+                    <option value="Arusha, Tanzania">Arusha, Tanzania</option>
+                    <option value="Mwanza, Tanzania">Mwanza, Tanzania</option>
+                    <option value="Dodoma, Tanzania">Dodoma, Tanzania</option>
+                    <option value="Mombasa, Kenya">Mombasa, Kenya</option>
+                    <option value="Kisumu, Kenya">Kisumu, Kenya</option>
+                    <option value="Jinja, Uganda">Jinja, Uganda</option>
+                    <option value="Mbale, Uganda">Mbale, Uganda</option>
+                    <option value="Butare, Rwanda">Butare, Rwanda</option>
+                    <option value="Gitarama, Rwanda">Gitarama, Rwanda</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
 
                 <div>
@@ -365,29 +404,51 @@ const EnhancedJobPosting: FC = () => {
               <div className="space-y-6">
                 <h3 className="text-lg font-medium text-gray-900">Salary & Benefits</h3>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Salary</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                      <input
-                        type="number"
-                        value={jobData.salary.min}
-                        onChange={(e) => handleSalaryChange('min', parseInt(e.target.value))}
-                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
-                      />
-                    </div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                    <select
+                      value={jobData.salary.currency}
+                      onChange={(e) => handleSalaryChange('currency', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                    >
+                      <option value="USD">USD ($)</option>
+                      <option value="TZS">TZS (TSh)</option>
+                    </select>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Maximum Salary</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                      <input
-                        type="number"
-                        value={jobData.salary.max}
-                        onChange={(e) => handleSalaryChange('max', parseInt(e.target.value))}
-                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
-                      />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Salary</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                          {jobData.salary.currency === 'USD' ? '$' : 'TSh'}
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={jobData.salary.min}
+                          onChange={(e) => handleSalaryChange('min', parseInt(e.target.value) || 0)}
+                          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Maximum Salary</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                          {jobData.salary.currency === 'USD' ? '$' : 'TSh'}
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={jobData.salary.max}
+                          onChange={(e) => handleSalaryChange('max', parseInt(e.target.value) || 0)}
+                          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#114373] focus:border-transparent"
+                          placeholder="0"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

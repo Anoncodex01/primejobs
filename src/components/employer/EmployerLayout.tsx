@@ -45,6 +45,12 @@ const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
 
   const navigation = [
     {
+      name: 'Agreements',
+      href: '/employer/agreements',
+      icon: <FileText className="w-5 h-5" />,
+      current: location.pathname === '/employer/agreements'
+    },
+    {
       name: 'Dashboard',
       href: '/employer/dashboard',
       icon: <Building2 className="w-5 h-5" />,
@@ -91,12 +97,6 @@ const EmployerLayout: FC<EmployerLayoutProps> = ({ children }) => {
       href: '/employer/placements',
       icon: <CheckCircle className="w-5 h-5" />,
       current: location.pathname === '/employer/placements'
-    },
-    {
-      name: 'Agreements',
-      href: '/employer/agreements',
-      icon: <FileText className="w-5 h-5" />,
-      current: location.pathname === '/employer/agreements'
     },
     {
       name: 'Reference Check',

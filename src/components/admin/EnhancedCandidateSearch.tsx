@@ -53,7 +53,8 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
     hasAppliedToJobs: [],
     aiRecommended: false,
     gender: undefined,
-    nationality: ''
+    nationality: '',
+    origin: ''
   });
 
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -320,33 +321,34 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Current City
+                  Country
                 </label>
                 <select
                   value={searchCriteria.currentCity}
                   onChange={(e) => setSearchCriteria(prev => ({ ...prev, currentCity: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">Select Current City</option>
-                  {getAllCities().map(city => (
-                    <option key={city} value={city}>{city}</option>
+                  <option value="">Select Country</option>
+                  {getAllCountries().map(country => (
+                    <option key={country} value={country}>{country}</option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Preferred Location
+                  City
                 </label>
                 <select
                   value={searchCriteria.preferredLocation}
                   onChange={(e) => setSearchCriteria(prev => ({ ...prev, preferredLocation: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">Select Preferred Location</option>
+                  <option value="">Select City</option>
                   <option value="Remote">Remote</option>
                   {getAllCities().map(city => (
                     <option key={city} value={city}>{city}</option>
                   ))}
+                  <option value="Other">Other</option>
                 </select>
               </div>
               <div className="flex items-center">
@@ -414,32 +416,32 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                   <option value="psychology">Psychology</option>
                   <option value="other">Other</option>
                 </select>
+                {searchCriteria.education.specialization === 'other' && (
+                  <input
+                    type="text"
+                    placeholder="Please specify specialization"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                    onChange={(e) => setSearchCriteria(prev => ({
+                      ...prev,
+                      education: { ...prev.education, specialization: e.target.value }
+                    }))}
+                  />
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   University/Institute
                 </label>
-                <select
+                <input
+                  type="text"
                   value={searchCriteria.education.university}
                   onChange={(e) => setSearchCriteria(prev => ({
                     ...prev,
                     education: { ...prev.education, university: e.target.value }
                   }))}
+                  placeholder="e.g., University of Dar es Salaam"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Any University</option>
-                  <option value="university-of-dar-es-salaam">University of Dar es Salaam</option>
-                  <option value="ardhi-university">Ardhi University</option>
-                  <option value="muhimbili-university">Muhimbili University</option>
-                  <option value="sokoine-university">Sokoine University</option>
-                  <option value="university-of-dodoma">University of Dodoma</option>
-                  <option value="open-university">Open University of Tanzania</option>
-                  <option value="university-of-nairobi">University of Nairobi</option>
-                  <option value="strathmore-university">Strathmore University</option>
-                  <option value="makerere-university">Makerere University</option>
-                  <option value="university-of-cape-town">University of Cape Town</option>
-                  <option value="other">Other</option>
-                </select>
+                />
               </div>
             </div>
 
@@ -582,6 +584,21 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                       ))}
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Origin
+                    </label>
+                    <select
+                      value={searchCriteria.origin}
+                      onChange={(e) => setSearchCriteria(prev => ({ ...prev, origin: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Any Origin</option>
+                      {getAllCountries().map(country => (
+                        <option key={country} value={country}>{country}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             )}
@@ -668,7 +685,8 @@ const EnhancedCandidateSearch: FC<EnhancedCandidateSearchProps> = ({
                 hasAppliedToJobs: [],
                 aiRecommended: false,
                 gender: undefined,
-                nationality: ''
+                nationality: '',
+                origin: ''
               })}
               className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
             >

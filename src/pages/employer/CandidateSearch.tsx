@@ -180,6 +180,19 @@ interface Candidate {
     year: string;
   }>;
   
+  // Interview History
+  interviewHistory?: Array<{
+    interviewDate: string;
+    jobTitle: string;
+    company: string;
+    status: 'scheduled' | 'completed' | 'cancelled';
+    evaluation?: {
+      overallRating: number;
+      recommendation: 'strongly_recommended' | 'recommended' | 'can_be_considered' | 'not_recommended';
+      interviewerName: string;
+    };
+  }>;
+  
   // Privacy Protected - No personal contact info
 }
 
@@ -395,6 +408,31 @@ const EmployerCandidateSearch: FC = () => {
             title: 'Employee of the Year',
             description: 'Recognized for outstanding performance and leadership',
             year: '2023'
+          }
+        ],
+        // Interview History
+        interviewHistory: [
+          {
+            interviewDate: '2024-01-15',
+            jobTitle: 'Senior Software Engineer',
+            company: 'TechCorp Solutions',
+            status: 'completed',
+            evaluation: {
+              overallRating: 4,
+              recommendation: 'recommended',
+              interviewerName: 'Sarah Johnson'
+            }
+          },
+          {
+            interviewDate: '2024-02-10',
+            jobTitle: 'Full Stack Developer',
+            company: 'InnovateTech',
+            status: 'completed',
+            evaluation: {
+              overallRating: 5,
+              recommendation: 'strongly_recommended',
+              interviewerName: 'Michael Chen'
+            }
           }
         ]
       }
@@ -809,14 +847,36 @@ const EmployerCandidateSearch: FC = () => {
                         onChange={() => toggleCandidateSelection(candidate.id)}
                         className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900">
-                          {candidate.resumeHeadline}
-                        </h3>
-                        <p className="text-gray-600">
-                          {candidate.currentLocation.city}, {candidate.currentLocation.state}, {candidate.currentLocation.country}
-                        </p>
-                      </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        {candidate.resumeHeadline}
+                      </h3>
+                      <p className="text-gray-600">
+                        {candidate.currentLocation.city}, {candidate.currentLocation.state}, {candidate.currentLocation.country}
+                      </p>
+                      {candidate.interviewHistory && candidate.interviewHistory.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-500">
+                            Last Interview: {new Date(candidate.interviewHistory[0].interviewDate).toLocaleDateString()} - {candidate.interviewHistory[0].jobTitle} at {candidate.interviewHistory[0].company}
+                          </p>
+                          {candidate.interviewHistory[0].evaluation && (
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                Rating: {candidate.interviewHistory[0].evaluation.overallRating}/5
+                              </span>
+                              <span className={`text-xs px-2 py-1 rounded ${
+                                candidate.interviewHistory[0].evaluation.recommendation === 'strongly_recommended' ? 'bg-green-100 text-green-800' :
+                                candidate.interviewHistory[0].evaluation.recommendation === 'recommended' ? 'bg-blue-100 text-blue-800' :
+                                candidate.interviewHistory[0].evaluation.recommendation === 'can_be_considered' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {candidate.interviewHistory[0].evaluation.recommendation.replace('_', ' ').toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
